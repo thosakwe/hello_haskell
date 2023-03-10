@@ -12,6 +12,7 @@ process line = do
     Right exprs -> mapM_ print exprs
 
 main :: IO ()
+-- runInputT is a transformer from haskeline, similar to readline
 main = runInputT defaultSettings loop
   where
     loop = do
