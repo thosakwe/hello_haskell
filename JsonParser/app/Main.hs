@@ -2,7 +2,10 @@ module Main where
 
 import System.IO
 import Text.Parsec
+import Text.Parsec.Language (emptyDef)
 import Text.Parsec.String
+
+import qualified Text.Parsec.Token as Tok
 
 data JsonValue
   = JsonNull
@@ -12,6 +15,19 @@ data JsonValue
   | JsonArray [JsonValue]
   | JsonObject [(String, JsonValue)]
   deriving (Show)
+
+-- Create a lexer for integers, floats
+-- () is the state type for the TokenParser, which in this case has no state.
+lexer :: Tok.TokenParser ()
+lexer = Tok.makeTokenParser emptyDef
+
+float :: Parser Double
+float = Tok.float lexer
+
+integer :: Parser Double
+integer = do
+  intValue <- Tok.integer lexer
+  return $ fromIntegral intValue
 
 parseJsonString :: Parser JsonValue
 parseJsonString = do
@@ -49,22 +65,9 @@ parseJsonNull :: Parser JsonValue
 parseJsonNull = string "null" >> return JsonNull
 
 parseJsonNumber :: Parser JsonValue
-parseJsonNumber =
-  -- Written by ChatGPT
-  -- Broken, and I'm too tired to fix it right now.
-  JsonNumber <$> do
-    sign <- option '+' (oneOf "+-")
-    intPart <- many1 digit
-    fracPart <- option "" (char '.' >> many1 digit)
-    expPart <- option "" $ do
-      e <- oneOf "eE"
-      s <- option '+' (oneOf "+-")
-      d <- many1 digit
-      return $ e : s : d
-    let numStr = sign : intPart ++ fracPart ++ expPart
-    case reads numStr of
-      [(num, "")] -> return num
-      _ -> fail $ "Invalid number: " ++ numStr
+-- float parse might fail if we entered an integer (as it expects a .), so we
+-- wrap float in "try"
+parseJsonNumber = JsonNumber <$> (try float <|> integer)
 
 parseJsonValue :: Parser JsonValue
 parseJsonValue =
