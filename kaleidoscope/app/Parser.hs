@@ -39,6 +39,7 @@ variable = Var <$> identifier
 
 function :: Parser Expr
 function = do
+  reserved "def"
   name <- identifier
   args <- parens $ many variable
   -- Same as body <- expr; return Function name args body
