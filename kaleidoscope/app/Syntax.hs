@@ -18,3 +18,5 @@ data Op
   | Times
   | Divide
   deriving (Eq, Ord, Show)
+
+type CompilationUnit = [Expr]

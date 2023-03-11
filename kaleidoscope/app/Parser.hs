@@ -98,3 +98,6 @@ parseExpr = makeStringParser expr
 parseToplevel :: String -> Either ParseError [Expr]
 -- parseToplevel = parse (contents toplevel) "<stdin>"
 parseToplevel = makeStringParser toplevel
+
+parseCompilationUnit :: String -> Either ParseError [Expr]
+parseCompilationUnit = parseToplevel

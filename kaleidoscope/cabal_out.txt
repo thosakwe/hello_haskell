@@ -1,0 +1,635 @@
+Build profile: -w ghc-9.2.5 -O1
+In order, the following will be built (use -v for more details):
+ - llvm-hs-9.0.1 (lib:llvm-hs) (requires build)
+ - my-kaleidoscope-0.1.0.0 (exe:my-kaleidoscope) (configuration changed)
+Starting     llvm-hs-9.0.1 (all, legacy fallback)
+Building     llvm-hs-9.0.1 (all, legacy fallback)
+
+Failed to build llvm-hs-9.0.1.
+Build log (
+/home/tobe/.cabal/logs/ghc-9.2.5/llvm-hs-9.0.1-7bf34971c523d8942d58dae9f75ee7705876ec4042d5d0c2813683e5fc321bed.log
+):
+[1 of 1] Compiling Main             ( /home/tobe/src/hello_haskell/kaleidoscope/dist-newstyle/tmp/src-12484/llvm-hs-9.0.1/dist/setup/setup.hs, /home/tobe/src/hello_haskell/kaleidoscope/dist-newstyle/tmp/src-12484/llvm-hs-9.0.1/dist/setup/Main.o )
+Linking /home/tobe/src/hello_haskell/kaleidoscope/dist-newstyle/tmp/src-12484/llvm-hs-9.0.1/dist/setup/setup ...
+Configuring llvm-hs-9.0.1...
+Preprocessing library for llvm-hs-9.0.1..
+Building library for llvm-hs-9.0.1..
+[  1 of 114] Compiling Control.Monad.Trans.AnyCont ( src/Control/Monad/Trans/AnyCont.hs, dist/build/Control/Monad/Trans/AnyCont.o, dist/build/Control/Monad/Trans/AnyCont.dyn_o )
+
+src/Control/Monad/Trans/AnyCont.hs:23:3: warning: [-Wnoncanonical-monad-instances]
+    Noncanonical ‘return’ definition detected
+    in the instance declaration for ‘Monad (AnyContT m)’.
+    ‘return’ will eventually be removed in favour of ‘pure’
+    Either remove definition for ‘return’ (recommended) or define as ‘return = pure’
+    See also: https://gitlab.haskell.org/ghc/ghc/-/wikis/proposal/monad-of-no-return
+   |
+23 |   return a = AnyContT $ return a
+   |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[  2 of 114] Compiling Control.Monad.AnyCont.Class ( src/Control/Monad/AnyCont/Class.hs, dist/build/Control/Monad/AnyCont/Class.o, dist/build/Control/Monad/AnyCont/Class.dyn_o )
+[  3 of 114] Compiling Control.Monad.AnyCont ( src/Control/Monad/AnyCont.hs, dist/build/Control/Monad/AnyCont.o, dist/build/Control/Monad/AnyCont.dyn_o )
+[  4 of 114] Compiling LLVM.CodeGenOpt  ( src/LLVM/CodeGenOpt.hs, dist/build/LLVM/CodeGenOpt.o, dist/build/LLVM/CodeGenOpt.dyn_o )
+[  5 of 114] Compiling LLVM.CodeModel   ( src/LLVM/CodeModel.hs, dist/build/LLVM/CodeModel.o, dist/build/LLVM/CodeModel.dyn_o )
+[  6 of 114] Compiling LLVM.Diagnostic  ( src/LLVM/Diagnostic.hs, dist/build/LLVM/Diagnostic.o, dist/build/LLVM/Diagnostic.dyn_o )
+[  7 of 114] Compiling LLVM.Exception   ( src/LLVM/Exception.hs, dist/build/LLVM/Exception.o, dist/build/LLVM/Exception.dyn_o )
+[  8 of 114] Compiling LLVM.Internal.FFI.ByteRangeCallback ( src/LLVM/Internal/FFI/ByteRangeCallback.hs, dist/build/LLVM/Internal/FFI/ByteRangeCallback.o, dist/build/LLVM/Internal/FFI/ByteRangeCallback.dyn_o )
+[  9 of 114] Compiling LLVM.Internal.FFI.CommandLine ( src/LLVM/Internal/FFI/CommandLine.hs, dist/build/LLVM/Internal/FFI/CommandLine.o, dist/build/LLVM/Internal/FFI/CommandLine.dyn_o )
+[ 10 of 114] Compiling LLVM.Internal.FFI.Context ( src/LLVM/Internal/FFI/Context.hs, dist/build/LLVM/Internal/FFI/Context.o, dist/build/LLVM/Internal/FFI/Context.dyn_o )
+[ 11 of 114] Compiling LLVM.Internal.Context ( src/LLVM/Internal/Context.hs, dist/build/LLVM/Internal/Context.o, dist/build/LLVM/Internal/Context.dyn_o )
+[ 12 of 114] Compiling LLVM.Context     ( src/LLVM/Context.hs, dist/build/LLVM/Context.o, dist/build/LLVM/Context.dyn_o )
+[ 13 of 114] Compiling LLVM.Internal.FFI.Iterate ( src/LLVM/Internal/FFI/Iterate.hs, dist/build/LLVM/Internal/FFI/Iterate.o, dist/build/LLVM/Internal/FFI/Iterate.dyn_o )
+[ 14 of 114] Compiling LLVM.Internal.FFI.LLVMCTypes ( dist/build/LLVM/Internal/FFI/LLVMCTypes.hs, dist/build/LLVM/Internal/FFI/LLVMCTypes.o, dist/build/LLVM/Internal/FFI/LLVMCTypes.dyn_o )
+[ 15 of 114] Compiling LLVM.Internal.FFI.InstructionDefs ( dist/build/LLVM/Internal/FFI/InstructionDefs.hs, dist/build/LLVM/Internal/FFI/InstructionDefs.o, dist/build/LLVM/Internal/FFI/InstructionDefs.dyn_o )
+[ 16 of 114] Compiling LLVM.Internal.FFI.DynamicLibrary ( src/LLVM/Internal/FFI/DynamicLibrary.hs, dist/build/LLVM/Internal/FFI/DynamicLibrary.o, dist/build/LLVM/Internal/FFI/DynamicLibrary.dyn_o )
+[ 17 of 114] Compiling LLVM.Internal.FFI.Attribute ( src/LLVM/Internal/FFI/Attribute.hs, dist/build/LLVM/Internal/FFI/Attribute.o, dist/build/LLVM/Internal/FFI/Attribute.dyn_o )
+[ 18 of 114] Compiling LLVM.Internal.Coding ( src/LLVM/Internal/Coding.hs, dist/build/LLVM/Internal/Coding.o, dist/build/LLVM/Internal/Coding.dyn_o )
+[ 19 of 114] Compiling LLVM.Internal.CallingConvention ( src/LLVM/Internal/CallingConvention.hs, dist/build/LLVM/Internal/CallingConvention.o, dist/build/LLVM/Internal/CallingConvention.dyn_o )
+[ 20 of 114] Compiling LLVM.Internal.Atomicity ( src/LLVM/Internal/Atomicity.hs, dist/build/LLVM/Internal/Atomicity.o, dist/build/LLVM/Internal/Atomicity.dyn_o )
+[ 21 of 114] Compiling LLVM.Internal.FFI.MemoryBuffer ( src/LLVM/Internal/FFI/MemoryBuffer.hs, dist/build/LLVM/Internal/FFI/MemoryBuffer.o, dist/build/LLVM/Internal/FFI/MemoryBuffer.dyn_o )
+[ 22 of 114] Compiling LLVM.Internal.FFI.ObjectFile ( src/LLVM/Internal/FFI/ObjectFile.hs, dist/build/LLVM/Internal/FFI/ObjectFile.o, dist/build/LLVM/Internal/FFI/ObjectFile.dyn_o )
+[ 23 of 114] Compiling LLVM.Internal.FFI.PtrHierarchy ( src/LLVM/Internal/FFI/PtrHierarchy.hs, dist/build/LLVM/Internal/FFI/PtrHierarchy.o, dist/build/LLVM/Internal/FFI/PtrHierarchy.dyn_o )
+[ 24 of 114] Compiling LLVM.Internal.FFI.Metadata ( src/LLVM/Internal/FFI/Metadata.hs, dist/build/LLVM/Internal/FFI/Metadata.o, dist/build/LLVM/Internal/FFI/Metadata.dyn_o )
+[ 25 of 114] Compiling LLVM.Internal.FFI.Instruction ( src/LLVM/Internal/FFI/Instruction.hs, dist/build/LLVM/Internal/FFI/Instruction.o, dist/build/LLVM/Internal/FFI/Instruction.dyn_o )
+[ 26 of 114] Compiling LLVM.Internal.FFI.InlineAssembly ( src/LLVM/Internal/FFI/InlineAssembly.hs, dist/build/LLVM/Internal/FFI/InlineAssembly.o, dist/build/LLVM/Internal/FFI/InlineAssembly.dyn_o )
+[ 27 of 114] Compiling LLVM.Internal.FFI.GlobalVariable ( src/LLVM/Internal/FFI/GlobalVariable.hs, dist/build/LLVM/Internal/FFI/GlobalVariable.o, dist/build/LLVM/Internal/FFI/GlobalVariable.dyn_o )
+[ 28 of 114] Compiling LLVM.Internal.FFI.GlobalValue ( src/LLVM/Internal/FFI/GlobalValue.hs, dist/build/LLVM/Internal/FFI/GlobalValue.o, dist/build/LLVM/Internal/FFI/GlobalValue.dyn_o )
+[ 29 of 114] Compiling LLVM.Internal.FFI.GlobalAlias ( src/LLVM/Internal/FFI/GlobalAlias.hs, dist/build/LLVM/Internal/FFI/GlobalAlias.o, dist/build/LLVM/Internal/FFI/GlobalAlias.dyn_o )
+[ 30 of 114] Compiling LLVM.Internal.FFI.Function ( src/LLVM/Internal/FFI/Function.hs, dist/build/LLVM/Internal/FFI/Function.o, dist/build/LLVM/Internal/FFI/Function.dyn_o )
+[ 31 of 114] Compiling LLVM.Internal.FFI.DataLayout ( src/LLVM/Internal/FFI/DataLayout.hs, dist/build/LLVM/Internal/FFI/DataLayout.o, dist/build/LLVM/Internal/FFI/DataLayout.dyn_o )
+[ 32 of 114] Compiling LLVM.Internal.FFI.OrcJIT ( src/LLVM/Internal/FFI/OrcJIT.hs, dist/build/LLVM/Internal/FFI/OrcJIT.o, dist/build/LLVM/Internal/FFI/OrcJIT.dyn_o )
+[ 33 of 114] Compiling LLVM.Internal.FFI.OrcJIT.LinkingLayer ( src/LLVM/Internal/FFI/OrcJIT/LinkingLayer.hs, dist/build/LLVM/Internal/FFI/OrcJIT/LinkingLayer.o, dist/build/LLVM/Internal/FFI/OrcJIT/LinkingLayer.dyn_o )
+[ 34 of 114] Compiling LLVM.Internal.FFI.Cleanup ( src/LLVM/Internal/FFI/Cleanup.hs, dist/build/LLVM/Internal/FFI/Cleanup.o, dist/build/LLVM/Internal/FFI/Cleanup.dyn_o )
+[ 35 of 114] Compiling LLVM.Internal.FFI.BinaryOperator ( src/LLVM/Internal/FFI/BinaryOperator.hs, dist/build/LLVM/Internal/FFI/BinaryOperator.o, dist/build/LLVM/Internal/FFI/BinaryOperator.dyn_o )
+[ 36 of 114] Compiling LLVM.Internal.FFI.BasicBlock ( src/LLVM/Internal/FFI/BasicBlock.hs, dist/build/LLVM/Internal/FFI/BasicBlock.o, dist/build/LLVM/Internal/FFI/BasicBlock.dyn_o )
+[ 37 of 114] Compiling LLVM.Internal.FFI.RTDyldMemoryManager ( src/LLVM/Internal/FFI/RTDyldMemoryManager.hs, dist/build/LLVM/Internal/FFI/RTDyldMemoryManager.o, dist/build/LLVM/Internal/FFI/RTDyldMemoryManager.dyn_o )
+[ 38 of 114] Compiling LLVM.Internal.FFI.RawOStream ( src/LLVM/Internal/FFI/RawOStream.hs, dist/build/LLVM/Internal/FFI/RawOStream.o, dist/build/LLVM/Internal/FFI/RawOStream.dyn_o )
+[ 39 of 114] Compiling LLVM.Internal.FFI.SMDiagnostic ( src/LLVM/Internal/FFI/SMDiagnostic.hs, dist/build/LLVM/Internal/FFI/SMDiagnostic.o, dist/build/LLVM/Internal/FFI/SMDiagnostic.dyn_o )
+[ 40 of 114] Compiling LLVM.Internal.FFI.ShortByteString ( src/LLVM/Internal/FFI/ShortByteString.hs, dist/build/LLVM/Internal/FFI/ShortByteString.o, dist/build/LLVM/Internal/FFI/ShortByteString.dyn_o )
+[ 41 of 114] Compiling LLVM.Internal.FFI.Threading ( src/LLVM/Internal/FFI/Threading.hs, dist/build/LLVM/Internal/FFI/Threading.o, dist/build/LLVM/Internal/FFI/Threading.dyn_o )
+[ 42 of 114] Compiling LLVM.Internal.FFI.Transforms ( src/LLVM/Internal/FFI/Transforms.hs, dist/build/LLVM/Internal/FFI/Transforms.o, dist/build/LLVM/Internal/FFI/Transforms.dyn_o )
+[ 43 of 114] Compiling LLVM.Internal.FFI.Type ( src/LLVM/Internal/FFI/Type.hs, dist/build/LLVM/Internal/FFI/Type.o, dist/build/LLVM/Internal/FFI/Type.dyn_o )
+[ 44 of 114] Compiling LLVM.Internal.FFI.Module ( src/LLVM/Internal/FFI/Module.hs, dist/build/LLVM/Internal/FFI/Module.o, dist/build/LLVM/Internal/FFI/Module.dyn_o )
+[ 45 of 114] Compiling LLVM.Internal.FFI.Target ( src/LLVM/Internal/FFI/Target.hs, dist/build/LLVM/Internal/FFI/Target.o, dist/build/LLVM/Internal/FFI/Target.dyn_o )
+[ 46 of 114] Compiling LLVM.Internal.FFI.OrcJIT.CompileLayer ( src/LLVM/Internal/FFI/OrcJIT/CompileLayer.hs, dist/build/LLVM/Internal/FFI/OrcJIT/CompileLayer.o, dist/build/LLVM/Internal/FFI/OrcJIT/CompileLayer.dyn_o )
+[ 47 of 114] Compiling LLVM.Internal.FFI.OrcJIT.IRTransformLayer ( src/LLVM/Internal/FFI/OrcJIT/IRTransformLayer.hs, dist/build/LLVM/Internal/FFI/OrcJIT/IRTransformLayer.o, dist/build/LLVM/Internal/FFI/OrcJIT/IRTransformLayer.dyn_o )
+[ 48 of 114] Compiling LLVM.Internal.FFI.OrcJIT.IRCompileLayer ( src/LLVM/Internal/FFI/OrcJIT/IRCompileLayer.hs, dist/build/LLVM/Internal/FFI/OrcJIT/IRCompileLayer.o, dist/build/LLVM/Internal/FFI/OrcJIT/IRCompileLayer.dyn_o )
+[ 49 of 114] Compiling LLVM.Internal.FFI.OrcJIT.CompileOnDemandLayer ( src/LLVM/Internal/FFI/OrcJIT/CompileOnDemandLayer.hs, dist/build/LLVM/Internal/FFI/OrcJIT/CompileOnDemandLayer.o, dist/build/LLVM/Internal/FFI/OrcJIT/CompileOnDemandLayer.dyn_o )
+[ 50 of 114] Compiling LLVM.Internal.FFI.ExecutionEngine ( src/LLVM/Internal/FFI/ExecutionEngine.hs, dist/build/LLVM/Internal/FFI/ExecutionEngine.o, dist/build/LLVM/Internal/FFI/ExecutionEngine.dyn_o )
+[ 51 of 114] Compiling LLVM.Internal.FFI.Bitcode ( src/LLVM/Internal/FFI/Bitcode.hs, dist/build/LLVM/Internal/FFI/Bitcode.o, dist/build/LLVM/Internal/FFI/Bitcode.dyn_o )
+[ 52 of 114] Compiling LLVM.Internal.FFI.Assembly ( src/LLVM/Internal/FFI/Assembly.hs, dist/build/LLVM/Internal/FFI/Assembly.o, dist/build/LLVM/Internal/FFI/Assembly.dyn_o )
+[ 53 of 114] Compiling LLVM.Internal.FFI.Analysis ( src/LLVM/Internal/FFI/Analysis.hs, dist/build/LLVM/Internal/FFI/Analysis.o, dist/build/LLVM/Internal/FFI/Analysis.dyn_o )
+[ 54 of 114] Compiling LLVM.Internal.FFI.User ( src/LLVM/Internal/FFI/User.hs, dist/build/LLVM/Internal/FFI/User.o, dist/build/LLVM/Internal/FFI/User.dyn_o )
+[ 55 of 114] Compiling LLVM.Internal.FFI.Value ( src/LLVM/Internal/FFI/Value.hs, dist/build/LLVM/Internal/FFI/Value.o, dist/build/LLVM/Internal/FFI/Value.dyn_o )
+[ 56 of 114] Compiling LLVM.Internal.FloatingPointPredicate ( src/LLVM/Internal/FloatingPointPredicate.hs, dist/build/LLVM/Internal/FloatingPointPredicate.o, dist/build/LLVM/Internal/FloatingPointPredicate.dyn_o )
+[ 57 of 114] Compiling LLVM.Internal.InstructionDefs ( src/LLVM/Internal/InstructionDefs.hs, dist/build/LLVM/Internal/InstructionDefs.o, dist/build/LLVM/Internal/InstructionDefs.dyn_o )
+[ 58 of 114] Compiling LLVM.Internal.FFI.Constant ( src/LLVM/Internal/FFI/Constant.hs, dist/build/LLVM/Internal/FFI/Constant.o, dist/build/LLVM/Internal/FFI/Constant.dyn_o )
+[ 59 of 114] Compiling LLVM.Internal.FFI.Builder ( src/LLVM/Internal/FFI/Builder.hs, dist/build/LLVM/Internal/FFI/Builder.o, dist/build/LLVM/Internal/FFI/Builder.dyn_o )
+[ 60 of 114] Compiling LLVM.Internal.IntegerPredicate ( src/LLVM/Internal/IntegerPredicate.hs, dist/build/LLVM/Internal/IntegerPredicate.o, dist/build/LLVM/Internal/IntegerPredicate.dyn_o )
+[ 61 of 114] Compiling LLVM.Internal.LibraryFunction ( dist/build/LLVM/Internal/LibraryFunction.hs, dist/build/LLVM/Internal/LibraryFunction.o, dist/build/LLVM/Internal/LibraryFunction.dyn_o )
+[ 62 of 114] Compiling LLVM.Internal.RMWOperation ( src/LLVM/Internal/RMWOperation.hs, dist/build/LLVM/Internal/RMWOperation.o, dist/build/LLVM/Internal/RMWOperation.dyn_o )
+[ 63 of 114] Compiling LLVM.Internal.String ( src/LLVM/Internal/String.hs, dist/build/LLVM/Internal/String.o, dist/build/LLVM/Internal/String.dyn_o )
+[ 64 of 114] Compiling LLVM.Internal.RawOStream ( src/LLVM/Internal/RawOStream.hs, dist/build/LLVM/Internal/RawOStream.o, dist/build/LLVM/Internal/RawOStream.dyn_o )
+[ 65 of 114] Compiling LLVM.Internal.MemoryBuffer ( src/LLVM/Internal/MemoryBuffer.hs, dist/build/LLVM/Internal/MemoryBuffer.o, dist/build/LLVM/Internal/MemoryBuffer.dyn_o )
+[ 66 of 114] Compiling LLVM.Internal.ObjectFile ( src/LLVM/Internal/ObjectFile.hs, dist/build/LLVM/Internal/ObjectFile.o, dist/build/LLVM/Internal/ObjectFile.dyn_o )
+[ 67 of 114] Compiling LLVM.Internal.EncodeAST ( src/LLVM/Internal/EncodeAST.hs, dist/build/LLVM/Internal/EncodeAST.o, dist/build/LLVM/Internal/EncodeAST.dyn_o )
+[ 68 of 114] Compiling LLVM.Internal.FastMathFlags ( src/LLVM/Internal/FastMathFlags.hs, dist/build/LLVM/Internal/FastMathFlags.o, dist/build/LLVM/Internal/FastMathFlags.dyn_o )
+[ 69 of 114] Compiling LLVM.Internal.Diagnostic ( src/LLVM/Internal/Diagnostic.hs, dist/build/LLVM/Internal/Diagnostic.o, dist/build/LLVM/Internal/Diagnostic.dyn_o )
+[ 70 of 114] Compiling LLVM.Internal.DecodeAST ( src/LLVM/Internal/DecodeAST.hs, dist/build/LLVM/Internal/DecodeAST.o, dist/build/LLVM/Internal/DecodeAST.dyn_o )
+
+src/LLVM/Internal/DecodeAST.hs:11:1: warning: [-Wunused-imports]
+    The import of ‘Control.Monad.Fail’ is redundant
+      except perhaps to import instances from ‘Control.Monad.Fail’
+    To import instances alone, use: import Control.Monad.Fail()
+   |
+11 | import Control.Monad.Fail
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/LLVM/Internal/DecodeAST.hs:89:19: warning: [-Wincomplete-uni-patterns]
+    Pattern match(es) are non-exhaustive
+    In a lambda abstraction:
+        Patterns of type ‘DecodeState’ not matched:
+            DecodeState (Data.Map.Internal.Bin _ _ _ _ _)
+            (Data.Map.Internal.Bin _ _ _ _ _) (Just _)
+            (Data.Map.Internal.Bin _ _ _ _ _)
+            (Data.Sequence.Internal.Seq Data.Sequence.Internal.EmptyT)
+            (Data.Sequence.Internal.Seq Data.Sequence.Internal.EmptyT)
+            (Data.Map.Internal.Bin _ _ _ _ _) (GHC.Arr.Array _ _ _ _)
+            (Data.Map.Internal.Bin _ _ _ _ _) []
+            (Data.Map.Internal.Bin _ _ _ _ _)
+            DecodeState (Data.Map.Internal.Bin _ _ _ _ _)
+            (Data.Map.Internal.Bin _ _ _ _ _) (Just _)
+            (Data.Map.Internal.Bin _ _ _ _ _)
+            (Data.Sequence.Internal.Seq Data.Sequence.Internal.EmptyT)
+            (Data.Sequence.Internal.Seq Data.Sequence.Internal.EmptyT)
+            (Data.Map.Internal.Bin _ _ _ _ _) (GHC.Arr.Array _ _ _ _)
+            (Data.Map.Internal.Bin _ _ _ _ _) [] Data.Map.Internal.Tip
+            DecodeState (Data.Map.Internal.Bin _ _ _ _ _)
+            (Data.Map.Internal.Bin _ _ _ _ _) (Just _)
+            (Data.Map.Internal.Bin _ _ _ _ _)
+            (Data.Sequence.Internal.Seq Data.Sequence.Internal.EmptyT)
+            (Data.Sequence.Internal.Seq Data.Sequence.Internal.EmptyT)
+            (Data.Map.Internal.Bin _ _ _ _ _) (GHC.Arr.Array _ _ _ _)
+            (Data.Map.Internal.Bin _ _ _ _ _) (_:_)
+            (Data.Map.Internal.Bin _ _ _ _ _)
+            DecodeState (Data.Map.Internal.Bin _ _ _ _ _)
+            (Data.Map.Internal.Bin _ _ _ _ _) (Just _)
+            (Data.Map.Internal.Bin _ _ _ _ _)
+            (Data.Sequence.Internal.Seq Data.Sequence.Internal.EmptyT)
+            (Data.Sequence.Internal.Seq Data.Sequence.Internal.EmptyT)
+            (Data.Map.Internal.Bin _ _ _ _ _) (GHC.Arr.Array _ _ _ _)
+            (Data.Map.Internal.Bin _ _ _ _ _) (_:_) Data.Map.Internal.Tip
+            ...
+   |
+89 |           modify (\s@DecodeState { localNameCounter = Nothing } -> s { localNameCounter = Just 0 })
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/LLVM/Internal/DecodeAST.hs:91:19: warning: [-Wincomplete-uni-patterns]
+    Pattern match(es) are non-exhaustive
+    In a lambda abstraction:
+        Patterns of type ‘DecodeState’ not matched:
+            DecodeState (Data.Map.Internal.Bin _ _ _ _ _)
+            (Data.Map.Internal.Bin _ _ _ _ _) Nothing
+            (Data.Map.Internal.Bin _ _ _ _ _)
+            (Data.Sequence.Internal.Seq Data.Sequence.Internal.EmptyT)
+            (Data.Sequence.Internal.Seq Data.Sequence.Internal.EmptyT)
+            (Data.Map.Internal.Bin _ _ _ _ _) (GHC.Arr.Array _ _ _ _)
+            (Data.Map.Internal.Bin _ _ _ _ _) []
+            (Data.Map.Internal.Bin _ _ _ _ _)
+            DecodeState (Data.Map.Internal.Bin _ _ _ _ _)
+            (Data.Map.Internal.Bin _ _ _ _ _) Nothing
+            (Data.Map.Internal.Bin _ _ _ _ _)
+            (Data.Sequence.Internal.Seq Data.Sequence.Internal.EmptyT)
+            (Data.Sequence.Internal.Seq Data.Sequence.Internal.EmptyT)
+            (Data.Map.Internal.Bin _ _ _ _ _) (GHC.Arr.Array _ _ _ _)
+            (Data.Map.Internal.Bin _ _ _ _ _) [] Data.Map.Internal.Tip
+            DecodeState (Data.Map.Internal.Bin _ _ _ _ _)
+            (Data.Map.Internal.Bin _ _ _ _ _) Nothing
+            (Data.Map.Internal.Bin _ _ _ _ _)
+            (Data.Sequence.Internal.Seq Data.Sequence.Internal.EmptyT)
+            (Data.Sequence.Internal.Seq Data.Sequence.Internal.EmptyT)
+            (Data.Map.Internal.Bin _ _ _ _ _) (GHC.Arr.Array _ _ _ _)
+            (Data.Map.Internal.Bin _ _ _ _ _) (_:_)
+            (Data.Map.Internal.Bin _ _ _ _ _)
+            DecodeState (Data.Map.Internal.Bin _ _ _ _ _)
+            (Data.Map.Internal.Bin _ _ _ _ _) Nothing
+            (Data.Map.Internal.Bin _ _ _ _ _)
+            (Data.Sequence.Internal.Seq Data.Sequence.Internal.EmptyT)
+            (Data.Sequence.Internal.Seq Data.Sequence.Internal.EmptyT)
+            (Data.Map.Internal.Bin _ _ _ _ _) (GHC.Arr.Array _ _ _ _)
+            (Data.Map.Internal.Bin _ _ _ _ _) (_:_) Data.Map.Internal.Tip
+            ...
+   |
+91 |           modify (\s@DecodeState { localNameCounter = Just _ } -> s { localNameCounter = Nothing })
+   |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ 71 of 114] Compiling LLVM.Internal.Global ( src/LLVM/Internal/Global.hs, dist/build/LLVM/Internal/Global.o, dist/build/LLVM/Internal/Global.dyn_o )
+[ 72 of 114] Compiling LLVM.Internal.Attribute ( src/LLVM/Internal/Attribute.hs, dist/build/LLVM/Internal/Attribute.o, dist/build/LLVM/Internal/Attribute.dyn_o )
+
+src/LLVM/Internal/Attribute.hs:65:7: warning: [-Woverlapping-patterns]
+    Pattern match is redundant
+    In a case alternative: A.PA.Alignment _ -> ...
+   |
+65 |       A.PA.Alignment _ -> inconsistentCases "ParameterAttribute" a
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/LLVM/Internal/Attribute.hs:66:7: warning: [-Woverlapping-patterns]
+    Pattern match is redundant
+    In a case alternative: A.PA.Dereferenceable _ -> ...
+   |
+66 |       A.PA.Dereferenceable _ -> inconsistentCases "ParameterAttribute" a
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/LLVM/Internal/Attribute.hs:67:7: warning: [-Woverlapping-patterns]
+    Pattern match is redundant
+    In a case alternative: A.PA.DereferenceableOrNull _ -> ...
+   |
+67 |       A.PA.DereferenceableOrNull _ -> inconsistentCases "ParameterAttribute" a
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/LLVM/Internal/Attribute.hs:68:7: warning: [-Woverlapping-patterns]
+    Pattern match is redundant
+    In a case alternative: A.PA.StringAttribute _ _ -> ...
+   |
+68 |       A.PA.StringAttribute _ _ -> inconsistentCases "ParameterAttribute" a
+   |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/LLVM/Internal/Attribute.hs:119:7: warning: [-Woverlapping-patterns]
+    Pattern match is redundant
+    In a case alternative: A.FA.StackAlignment _ -> ...
+    |
+119 |       A.FA.StackAlignment _ -> inconsistentCases "FunctionAttribute" a
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/LLVM/Internal/Attribute.hs:120:7: warning: [-Woverlapping-patterns]
+    Pattern match is redundant
+    In a case alternative: A.FA.AllocSize _ _ -> ...
+    |
+120 |       A.FA.AllocSize _ _ -> inconsistentCases "FunctionAttribute" a
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/LLVM/Internal/Attribute.hs:121:7: warning: [-Woverlapping-patterns]
+    Pattern match is redundant
+    In a case alternative: A.FA.StringAttribute _ _ -> ...
+    |
+121 |       A.FA.StringAttribute _ _ -> inconsistentCases "FunctionAttribute" a
+    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ 73 of 114] Compiling LLVM.Internal.DataLayout ( src/LLVM/Internal/DataLayout.hs, dist/build/LLVM/Internal/DataLayout.o, dist/build/LLVM/Internal/DataLayout.dyn_o )
+[ 74 of 114] Compiling LLVM.Internal.CommandLine ( src/LLVM/Internal/CommandLine.hs, dist/build/LLVM/Internal/CommandLine.o, dist/build/LLVM/Internal/CommandLine.dyn_o )
+[ 75 of 114] Compiling LLVM.CommandLine ( src/LLVM/CommandLine.hs, dist/build/LLVM/CommandLine.o, dist/build/LLVM/CommandLine.dyn_o )
+[ 76 of 114] Compiling LLVM.Internal.TailCallKind ( src/LLVM/Internal/TailCallKind.hs, dist/build/LLVM/Internal/TailCallKind.o, dist/build/LLVM/Internal/TailCallKind.dyn_o )
+[ 77 of 114] Compiling LLVM.Internal.Threading ( src/LLVM/Internal/Threading.hs, dist/build/LLVM/Internal/Threading.o, dist/build/LLVM/Internal/Threading.dyn_o )
+[ 78 of 114] Compiling LLVM.Internal.Type ( src/LLVM/Internal/Type.hs, dist/build/LLVM/Internal/Type.o, dist/build/LLVM/Internal/Type.dyn_o )
+[ 79 of 114] Compiling LLVM.Internal.Value ( src/LLVM/Internal/Value.hs, dist/build/LLVM/Internal/Value.o, dist/build/LLVM/Internal/Value.dyn_o )
+[ 80 of 114] Compiling LLVM.Internal.Metadata ( src/LLVM/Internal/Metadata.hs, dist/build/LLVM/Internal/Metadata.o, dist/build/LLVM/Internal/Metadata.dyn_o )
+[ 81 of 114] Compiling LLVM.Internal.InlineAssembly ( src/LLVM/Internal/InlineAssembly.hs, dist/build/LLVM/Internal/InlineAssembly.o, dist/build/LLVM/Internal/InlineAssembly.dyn_o )
+
+src/LLVM/Internal/InlineAssembly.hs:56:20: warning: [-Wincomplete-uni-patterns]
+    Pattern match(es) are non-exhaustive
+    In a lambda abstraction:
+        Patterns of type ‘A.Type’ not matched:
+            A.VoidType
+            A.IntegerType _
+            A.FloatingPointType _
+            A.FunctionType _ _ _
+            ...
+   |
+56 |       `ap` (liftM (\(A.PointerType f _) -> f) (typeOf p))
+   |                    ^^^^^^^^^^^^^^^^^^^^^^^^^
+[ 82 of 114] Compiling LLVM.Internal.Constant ( src/LLVM/Internal/Constant.hs, dist/build/LLVM/Internal/Constant.o, dist/build/LLVM/Internal/Constant.dyn_o )
+
+src/LLVM/Internal/Constant.hs:231:13: warning: [-Wincomplete-uni-patterns]
+    Pattern match(es) are non-exhaustive
+    In a pattern binding:
+        Patterns of type ‘A.Type’ not matched:
+            A.VoidType
+            A.IntegerType _
+            A.PointerType _ _
+            A.FunctionType _ _ _
+            ...
+    |
+231 |         let A.FloatingPointType fpt = t
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[ 83 of 114] Compiling LLVM.Internal.Operand ( src/LLVM/Internal/Operand.hs, dist/build/LLVM/Internal/Operand.o, dist/build/LLVM/Internal/Operand.dyn_o )
+
+src/LLVM/Internal/Operand.hs:150:40: error:
+    • No instance for (DecodeM
+                         DecodeAST A.Metadata (Ptr FFI.MetadataAsVal))
+        arising from a use of ‘decodeM’
+    • In the second argument of ‘(<$>)’, namely ‘decodeM m’
+      In the expression: A.MetadataOperand <$> decodeM m
+      In a stmt of a 'do' block:
+        if m /= nullPtr then
+            A.MetadataOperand <$> decodeM m
+        else
+            A.LocalReference <$> (decodeM =<< liftIO (FFI.typeOf v))
+              <*> getLocalName v
+    |
+150 |             then A.MetadataOperand <$> decodeM m
+    |                                        ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:163:29: error:
+    • No instance for (DecodeM
+                         DecodeAST (A.MDRef A.MDNode) (Ptr FFI.MDNode))
+        arising from a use of ‘decodeM’
+    • In the second argument of ‘(<$>)’, namely ‘decodeM n’
+      In the expression: A.MDNode <$> decodeM n
+      In a stmt of a 'do' block:
+        if n /= nullPtr then
+            A.MDNode <$> decodeM n
+        else
+            do v <- liftIO $ FFI.isAMDValue md
+               if v /= nullPtr then
+                   A.MDValue <$> decodeM v
+               else
+                   throwM
+                     (DecodeException
+                        "Metadata was not one of [MDString, MDValue, MDNode]")
+    |
+163 |           then A.MDNode <$> decodeM n
+    |                             ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:166:40: error:
+    • No instance for (DecodeM DecodeAST A.Operand (Ptr FFI.MDValue))
+        arising from a use of ‘decodeM’
+    • In the second argument of ‘(<$>)’, namely ‘decodeM v’
+      In the expression: A.MDValue <$> decodeM v
+      In a stmt of a 'do' block:
+        if v /= nullPtr then
+            A.MDValue <$> decodeM v
+        else
+            throwM
+              (DecodeException
+                 "Metadata was not one of [MDString, MDValue, MDNode]")
+    |
+166 |                     then A.MDValue <$> decodeM v
+    |                                        ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:175:67: error:
+    • No instance for (DecodeM
+                         DecodeAST A.DIImportedEntity (Ptr FFI.DIImportedEntity))
+        arising from a use of ‘decodeM’
+    • In the second argument of ‘(<$>)’, namely
+        ‘decodeM (castPtr diN :: Ptr FFI.DIImportedEntity)’
+      In the expression:
+        A.DIImportedEntity
+          <$> decodeM (castPtr diN :: Ptr FFI.DIImportedEntity)
+      In a case alternative:
+          (FFI.MDSubclassID (Foreign.C.Types.CUInt 28))
+            -> A.DIImportedEntity
+                 <$> decodeM (castPtr diN :: Ptr FFI.DIImportedEntity)
+    |
+175 |       [mdSubclassIdP|DIImportedEntity|] -> A.DIImportedEntity <$> decodeM (castPtr diN :: Ptr FFI.DIImportedEntity)
+    |                                                                   ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:176:65: error:
+    • No instance for (DecodeM
+                         DecodeAST A.DIObjCProperty (Ptr FFI.DIObjCProperty))
+        arising from a use of ‘decodeM’
+    • In the second argument of ‘(<$>)’, namely
+        ‘decodeM (castPtr diN :: Ptr FFI.DIObjCProperty)’
+      In the expression:
+        A.DIObjCProperty
+          <$> decodeM (castPtr diN :: Ptr FFI.DIObjCProperty)
+      In a case alternative:
+          (FFI.MDSubclassID (Foreign.C.Types.CUInt 27))
+            -> A.DIObjCProperty
+                 <$> decodeM (castPtr diN :: Ptr FFI.DIObjCProperty)
+    |
+176 |       [mdSubclassIdP|DIObjCProperty|]   -> A.DIObjCProperty <$> decodeM (castPtr diN :: Ptr FFI.DIObjCProperty)
+    |                                                                 ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:190:61: error:
+    • No instance for (DecodeM
+                         DecodeAST A.DIVariable (Ptr FFI.DIVariable))
+        arising from a use of ‘decodeM’
+    • In the second argument of ‘(<$>)’, namely
+        ‘decodeM (castPtr diN :: Ptr FFI.DIVariable)’
+      In the expression:
+        A.DIVariable <$> decodeM (castPtr diN :: Ptr FFI.DIVariable)
+      In a case alternative:
+          (FFI.MDSubclassID (Foreign.C.Types.CUInt 24))
+            -> A.DIVariable <$> decodeM (castPtr diN :: Ptr FFI.DIVariable)
+    |
+190 |       [mdSubclassIdP|DIGlobalVariable|] -> A.DIVariable <$> decodeM (castPtr diN :: Ptr FFI.DIVariable)
+    |                                                             ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:193:78: error:
+    • No instance for (DecodeM
+                         DecodeAST A.DITemplateParameter (Ptr FFI.DITemplateParameter))
+        arising from a use of ‘decodeM’
+    • In the second argument of ‘(<$>)’, namely
+        ‘decodeM (castPtr diN :: Ptr FFI.DITemplateParameter)’
+      In the expression:
+        A.DITemplateParameter
+          <$> decodeM (castPtr diN :: Ptr FFI.DITemplateParameter)
+      In a case alternative:
+          (FFI.MDSubclassID (Foreign.C.Types.CUInt 22))
+            -> A.DITemplateParameter
+                 <$> decodeM (castPtr diN :: Ptr FFI.DITemplateParameter)
+    |
+193 |       [mdSubclassIdP|DITemplateTypeParameter|]  -> A.DITemplateParameter <$> decodeM (castPtr diN :: Ptr FFI.DITemplateParameter)
+    |                                                                              ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:204:15: error:
+    • No instance for (EncodeM
+                         EncodeAST (A.MDRef A.DIVariable) (Ptr FFI.DIVariable))
+        arising from a use of ‘encodeM’
+    • In a stmt of a 'do' block: v' <- encodeM v
+      In the expression:
+        do v' <- encodeM v
+           liftIO (FFI.getDISubrangeVariableCount c v' lowerBound)
+      In a case alternative:
+          A.DICountVariable v
+            -> do v' <- encodeM v
+                  liftIO (FFI.getDISubrangeVariableCount c v' lowerBound)
+    |
+204 |         v' <- encodeM v
+    |               ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:216:18: error:
+    • No instance for (DecodeM
+                         DecodeAST (A.MDRef A.DIVariable) (Ptr FFI.DIVariable))
+        arising from a use of ‘decodeM’
+    • In the first argument of ‘(=<<)’, namely ‘decodeM’
+      In a stmt of a 'do' block:
+        count <- decodeM =<< liftIO (FFI.getDISubrangeCountVariable r)
+      In the expression:
+        do count <- decodeM =<< liftIO (FFI.getDISubrangeCountVariable r)
+           pure (A.Subrange (A.DICountVariable count) lowerBound)
+    |
+216 |         count <- decodeM =<< liftIO (FFI.getDISubrangeCountVariable r)
+    |                  ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:241:12: error:
+    • No instance for (EncodeM EncodeAST A.DIScope (Ptr FFI.DIScope))
+        arising from a use of ‘encodeM’
+    • In a stmt of a 'do' block: ptr <- encodeM s
+      In the expression:
+        do ptr <- encodeM s
+           pure (FFI.upCast (ptr :: Ptr FFI.DIScope))
+      In an equation for ‘encodeM’:
+          encodeM (A.DIScope s)
+            = do ptr <- encodeM s
+                 pure (FFI.upCast (ptr :: Ptr FFI.DIScope))
+    |
+241 |     ptr <- encodeM s
+    |            ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:244:12: error:
+    • No instance for (EncodeM
+                         EncodeAST A.DIVariable (Ptr FFI.DIVariable))
+        arising from a use of ‘encodeM’
+    • In a stmt of a 'do' block: ptr <- encodeM v
+      In the expression:
+        do ptr <- encodeM v
+           pure (FFI.upCast (ptr :: Ptr FFI.DIVariable))
+      In an equation for ‘encodeM’:
+          encodeM (A.DIVariable v)
+            = do ptr <- encodeM v
+                 pure (FFI.upCast (ptr :: Ptr FFI.DIVariable))
+    |
+244 |     ptr <- encodeM v
+    |            ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:247:12: error:
+    • No instance for (EncodeM
+                         EncodeAST A.DITemplateParameter (Ptr FFI.DITemplateParameter))
+        arising from a use of ‘encodeM’
+    • In a stmt of a 'do' block: ptr <- encodeM p
+      In the expression:
+        do ptr <- encodeM p
+           pure (FFI.upCast (ptr :: Ptr FFI.DITemplateParameter))
+      In an equation for ‘encodeM’:
+          encodeM (A.DITemplateParameter p)
+            = do ptr <- encodeM p
+                 pure (FFI.upCast (ptr :: Ptr FFI.DITemplateParameter))
+    |
+247 |     ptr <- encodeM p
+    |            ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:250:12: error:
+    • No instance for (EncodeM
+                         EncodeAST A.DIImportedEntity (Ptr FFI.DIImportedEntity))
+        arising from a use of ‘encodeM’
+    • In a stmt of a 'do' block: ptr <- encodeM e
+      In the expression:
+        do ptr <- encodeM e
+           pure (FFI.upCast (ptr :: Ptr FFI.DIImportedEntity))
+      In an equation for ‘encodeM’:
+          encodeM (A.DIImportedEntity e)
+            = do ptr <- encodeM e
+                 pure (FFI.upCast (ptr :: Ptr FFI.DIImportedEntity))
+    |
+250 |     ptr <- encodeM e
+    |            ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:252:50: error:
+    • No instance for (EncodeM
+                         EncodeAST A.DIObjCProperty (Ptr FFI.DIObjCProperty))
+        arising from a use of ‘encodeM’
+    • In the second argument of ‘(<$>)’, namely
+        ‘(encodeM o :: EncodeAST (Ptr FFI.DIObjCProperty))’
+      In the expression:
+        FFI.upCast <$> (encodeM o :: EncodeAST (Ptr FFI.DIObjCProperty))
+      In an equation for ‘encodeM’:
+          encodeM (A.DIObjCProperty o)
+            = FFI.upCast <$> (encodeM o :: EncodeAST (Ptr FFI.DIObjCProperty))
+    |
+252 |   encodeM (A.DIObjCProperty o) = FFI.upCast <$> (encodeM o :: EncodeAST (Ptr FFI.DIObjCProperty))
+    |                                                  ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:259:47: error:
+    • No instance for (DecodeM DecodeAST A.DIFile (Ptr FFI.DIFile))
+        arising from a use of ‘decodeM’
+    • In the second argument of ‘(<$>)’, namely
+        ‘decodeM (castPtr p :: Ptr FFI.DIFile)’
+      In the expression:
+        A.DIFile <$> decodeM (castPtr p :: Ptr FFI.DIFile)
+      In a case alternative:
+          (FFI.MDSubclassID (Foreign.C.Types.CUInt 15))
+            -> A.DIFile <$> decodeM (castPtr p :: Ptr FFI.DIFile)
+    |
+259 |       [mdSubclassIdP|DIFile|] -> A.DIFile <$> decodeM (castPtr p :: Ptr FFI.DIFile)
+    |                                               ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:260:65: error:
+    • No instance for (DecodeM
+                         DecodeAST A.DILocalScope (Ptr FFI.DILocalScope))
+        arising from a use of ‘decodeM’
+    • In the second argument of ‘(<$>)’, namely
+        ‘decodeM (castPtr p :: Ptr FFI.DILocalScope)’
+      In the expression:
+        A.DILocalScope <$> decodeM (castPtr p :: Ptr FFI.DILocalScope)
+      In a case alternative:
+          (FFI.MDSubclassID (Foreign.C.Types.CUInt 18))
+            -> A.DILocalScope <$> decodeM (castPtr p :: Ptr FFI.DILocalScope)
+    |
+260 |       [mdSubclassIdP|DILexicalBlock|]     -> A.DILocalScope <$> decodeM (castPtr p :: Ptr FFI.DILocalScope)
+    |                                                                 ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:264:57: error:
+    • No instance for (DecodeM DecodeAST A.DIType (Ptr FFI.DIType))
+        arising from a use of ‘decodeM’
+    • In the second argument of ‘(<$>)’, namely
+        ‘decodeM (castPtr p :: Ptr FFI.DIType)’
+      In the expression:
+        A.DIType <$> decodeM (castPtr p :: Ptr FFI.DIType)
+      In a case alternative:
+          (FFI.MDSubclassID (Foreign.C.Types.CUInt 11))
+            -> A.DIType <$> decodeM (castPtr p :: Ptr FFI.DIType)
+    |
+264 |       [mdSubclassIdP|DIBasicType|]      -> A.DIType <$> decodeM (castPtr p :: Ptr FFI.DIType)
+    |                                                         ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:269:61: error:
+    • No instance for (DecodeM
+                         DecodeAST A.DICompileUnit (Ptr FFI.DICompileUnit))
+        arising from a use of ‘decodeM’
+    • In the second argument of ‘(<$>)’, namely
+        ‘decodeM (castPtr p :: Ptr FFI.DICompileUnit)’
+      In the expression:
+        A.DICompileUnit <$> decodeM (castPtr p :: Ptr FFI.DICompileUnit)
+      In a case alternative:
+          (FFI.MDSubclassID (Foreign.C.Types.CUInt 16))
+            -> A.DICompileUnit <$> decodeM (castPtr p :: Ptr FFI.DICompileUnit)
+    |
+269 |       [mdSubclassIdP|DICompileUnit|] -> A.DICompileUnit <$> decodeM (castPtr p :: Ptr FFI.DICompileUnit)
+    |                                                             ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:276:14: error:
+    • No instance for (DecodeM
+                         DecodeAST (A.MDRef A.DIScope) (Ptr FFI.DIScope))
+        arising from a use of ‘decodeM’
+    • In the first argument of ‘(=<<)’, namely ‘decodeM’
+      In a stmt of a 'do' block:
+        scope <- decodeM =<< liftIO (FFI.getScopeScope (FFI.upCast p))
+      In the expression:
+        do scope <- decodeM =<< liftIO (FFI.getScopeScope (FFI.upCast p))
+           name <- getByteStringFromFFI FFI.getScopeName (FFI.upCast p)
+           exported <- decodeM
+                         =<< liftIO (FFI.getNamespaceExportedSymbols (castPtr p))
+           return (A.Namespace name scope exported)
+    |
+276 |     scope <- decodeM =<< liftIO (FFI.getScopeScope (FFI.upCast p))
+    |              ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:284:14: error:
+    • No instance for (EncodeM
+                         EncodeAST (A.MDRef A.DIScope) (Ptr FFI.DIScope))
+        arising from a use of ‘encodeM’
+    • In a stmt of a 'do' block: scope <- encodeM scope
+      In the expression:
+        do name <- encodeM name
+           scope <- encodeM scope
+           exportSyms <- encodeM exportSymbols
+           Context c <- gets encodeStateContext
+           ....
+      In an equation for ‘encodeM’:
+          encodeM A.Namespace {..}
+            = do name <- encodeM name
+                 scope <- encodeM scope
+                 exportSyms <- encodeM exportSymbols
+                 ....
+    |
+284 |     scope <- encodeM scope
+    |              ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:291:14: error:
+    • No instance for (DecodeM
+                         DecodeAST (A.MDRef A.DIScope) (Ptr FFI.DIScope))
+        arising from a use of ‘decodeM’
+    • In the first argument of ‘(=<<)’, namely ‘decodeM’
+      In a stmt of a 'do' block:
+        scope <- decodeM =<< liftIO (FFI.getScopeScope (FFI.upCast p))
+      In the expression:
+        do scope <- decodeM =<< liftIO (FFI.getScopeScope (FFI.upCast p))
+           name <- getByteStringFromFFI FFI.getScopeName (FFI.upCast p)
+           let m = ...
+           configurationMacros <- decodeM
+                                    =<< liftIO (FFI.getDIModuleConfigurationMacros m)
+           ....
+    |
+291 |     scope <- decodeM =<< liftIO (FFI.getScopeScope (FFI.upCast p))
+    |              ^^^^^^^
+
+src/LLVM/Internal/Operand.hs:307:14: error:
+    • No instance for (EncodeM
+                         EncodeAST (A.MDRef A.DIScope) (Ptr FFI.DIScope))
+        arising from a use of ‘encodeM’
+    • In a stmt of a 'do' block: scope <- encodeM scope
+      In the expression:
+        do scope <- encodeM scope
+           name <- encodeM name
+           configurationMacros <- encodeM configurationMacros
+           includePath <- encodeM includePath
+           ....
+      In an equation for ‘encodeM’:
+          encodeM A.Module {..}
+            = do scope <- encodeM scope
+                 name <- encodeM name
+                 configurationMacros <- encodeM configurationMacros
+                 ....
+    |
+307 |     scope <- encodeM scope
+    |              ^^^^^^^
+cabal: Failed to build llvm-hs-9.0.1 (which is required by exe:my-kaleidoscope
+from my-kaleidoscope-0.1.0.0). See the build log above for details.
+
