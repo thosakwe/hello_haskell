@@ -156,7 +156,23 @@ compileInstr (IR.BinOp op left right) = do
     Untyped.Divide -> emitInstr $ Wasm.FBinOp Wasm.BS64 Wasm.FDiv
     Untyped.LessThan -> emitInstr $ Wasm.FRelOp Wasm.BS64 Wasm.FLt
     Untyped.GreaterThan -> emitInstr $ Wasm.FRelOp Wasm.BS64 Wasm.FGt
-compileInstr (IR.GetParam name returnType) = return ()
+compileInstr (IR.GetParam name returnType) = do
+  -- In order to compile this to a GetLocal, we need to identify the index of
+  -- this param in the original function's param list.
+  funcName <- gets currentFunctionName
+  ir <- gets originalIR
+  -- Lookup the original function.
+  let mOrigFunc = Map.lookup funcName (IR.defns ir)
+  case mOrigFunc of
+    Just (IR.FuncDefn (IR.Func {name, sig, locals, blocks})) -> do
+      -- Get the params
+      let (IR.FuncSignature {returnType, params}) = sig
+      -- Next, get the index.
+      case elemIndex name (Map.keys params) of
+        Nothing -> return ()
+        Just paramIndex -> do
+          emitInstr $ Wasm.GetLocal (fromIntegral paramIndex)
+    _ -> return ()
 compileInstr (IR.GetFunc name returnType) = return ()
 compileInstr (IR.Call {target, args}) = do
   case target of
