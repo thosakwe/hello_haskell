@@ -55,7 +55,10 @@ compileUnit unit = do
 
 compileDefn :: IR.Defn -> WasmPassM ()
 compileDefn (IR.MainInstr instr) = return ()
-compileDefn (IR.FuncDefn func) = return ()
+compileDefn (IR.FuncDefn func) = do
+  let IR.Func {name, sig, locals, blocks} = func
+  let funcType = compileFuncSig sig
+  emitAndExportFunction name funcType
 compileDefn (IR.ExternDefn name sig) = do
   let funcType = compileFuncSig sig
   funcTypeIndex <- emitFuncType funcType
