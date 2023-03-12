@@ -25,6 +25,8 @@ data Instr
   | GetParam String Type
   | GetFunc String Type
   | Call {target :: Instr, args :: [Instr]}
+  -- | JumpIfTrue (returnType, cond, blockNameIfTrue, blockNameIfFalse)
+  | JumpIfTrue Type Instr String String
   | UnknownInstr
   deriving (Show)
 

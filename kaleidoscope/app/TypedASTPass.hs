@@ -4,6 +4,7 @@
 -- | A semantic analyzer that turns the untyped AST into a typed one.
 module TypedASTPass where
 
+import Control.Arrow (ArrowChoice (left))
 import Control.Monad.State
 import Control.Monad.Trans.Maybe
 import qualified Data.Map as Map
@@ -11,7 +12,6 @@ import KaleidoError
 import qualified Syntax as Untyped
 import Text.Parsec (SourcePos)
 import TypedAST
-import Control.Arrow (ArrowChoice(left))
 
 data CompilerState = CompilerState
   { funcState :: FuncState,
@@ -112,6 +112,17 @@ compileExpr (Untyped.Call pos funcName args) = do
       let target = GetFunc name funcType
       typedArgs <- mapM compileExpr args
       return $ Call {target, args = typedArgs}
+compileExpr (Untyped.If pos cond then_ else_) = do
+  cond <- compileExpr cond
+  then_ <- compileExpr then_
+  else_ <- compileExpr else_
+  -- TODO (thosakwe): If we ever return types besides float, then we need
+  -- to figure out the return type
+  -- TODO (thosakwe): Add a unique-name fetcher
+  -- We need to create 2 new basic blocks, one for if true, one for if false.
+  let thenBlockName = "then"
+  let elseBlockName = "else"
+  return $ JumpIfTrue FloatType cond thenBlockName elseBlockName
 compileExpr expr = do
   let msg = "Unsupported expr within function: " ++ show expr
   let pos = Untyped.getPos expr
@@ -138,34 +149,28 @@ emitDefn name defn = do
 
 emitInstr :: SourcePos -> Instr -> State CompilerState ()
 emitInstr pos instr = do
-  -- Find the func with the current func name.
   FuncState {currentBlockName, currentFuncName} <- gets funcState
+  modifyCurrentFunction $ \func -> do
+    -- Find the basic block.
+    let mBlock = Map.lookup currentBlockName $ blocks func
+    case mBlock of
+      Nothing -> func
+      Just block -> do
+        -- Add the instr.
+        let newInstrs = instrs block ++ [instr]
+        let newBlock = block {instrs = newInstrs}
+        let newBlocks = Map.insert currentBlockName newBlock (blocks func)
+        let newFunc = FuncDefn $ func {blocks = newBlocks}
+        func {blocks = newBlocks}
+
+emitNewBlock :: String -> State CompilerState ()
+emitNewBlock name = do
   mfunc <- lookupCurrentFunc
   case mfunc of
-    Nothing ->
-      emitError pos $ "No function named '" ++ currentFuncName ++ "' exists."
+    Nothing -> return ()
     Just func -> do
-      -- Find the basic block.
-      let mBlock = Map.lookup currentBlockName $ blocks func
-      case mBlock of
-        Nothing ->
-          let msg =
-                "No block named '"
-                  ++ currentBlockName
-                  ++ "' exists in this function."
-           in emitError pos msg
-        Just block -> do
-          -- Add the instr.
-          let newInstrs = instrs block ++ [instr]
-          let newBlock = block {instrs = newInstrs}
-          let newBlocks = Map.insert currentBlockName newBlock (blocks func)
-          let newFunc = FuncDefn $ func {blocks = newBlocks}
-          -- Create a new definitions map.
-          -- Edit the compilation unit
-          modifyCompilationUnit $ \unit ->
-            unit
-              { defns = Map.insert currentFuncName newFunc (defns unit)
-              }
+      let newBlock = BasicBlock {name, instrs = []}
+      return ()
 
 emitError :: SourcePos -> String -> State CompilerState ()
 emitError pos msg = do
@@ -208,6 +213,21 @@ modifyResult f = do
 modifyCompilationUnit :: (CompilationUnit -> CompilationUnit) -> State CompilerState ()
 modifyCompilationUnit f =
   modifyResult $ \result -> result {compilationUnit = f (compilationUnit result)}
+
+modifyCurrentFunction :: (Func -> Func) -> State CompilerState ()
+modifyCurrentFunction f = do
+  mFunc <- lookupCurrentFunc
+  case mFunc of
+    Nothing -> return ()
+    Just func ->
+      modifyCompilationUnit $ \unit ->
+        let Func {name = currentFuncName} = func
+            newFunc = FuncDefn $ f func
+         in -- Create a new definitions map.
+            -- Edit the compilation unit
+            unit
+              { defns = Map.insert currentFuncName newFunc (defns unit)
+              }
 
 -- mkCompilerState :: CompilerState
 -- mkCompilerState funcState =
