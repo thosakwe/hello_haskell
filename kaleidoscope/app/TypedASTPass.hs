@@ -135,14 +135,11 @@ emitInstr :: SourcePos -> Instr -> State CompilerState ()
 emitInstr pos instr = do
   -- Find the func with the current func name.
   FuncState {currentBlockName, currentFuncName} <- gets funcState
-  unit <- getCompilationUnit
-  let mfunc = Map.lookup currentFuncName (defns unit)
+  mfunc <- lookupCurrentFunc
   case mfunc of
     Nothing ->
       emitError pos $ "No function named '" ++ currentFuncName ++ "' exists."
-    Just (ExternDefn name sig) ->
-      emitError pos $ "'" ++ name ++ "' is an extern, not a function."
-    Just (FuncDefn func) -> do
+    Just func -> do
       -- Find the basic block.
       let mBlock = Map.lookup currentBlockName $ blocks func
       case mBlock of
