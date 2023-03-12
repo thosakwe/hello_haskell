@@ -125,7 +125,14 @@ compileInstr (IR.Call {target, args}) = do
           mapM_ compileInstr args
           emitInstr $ Wasm.Call (fromIntegral funcIndex)
     _ -> return ()
-compileInstr (IR.JumpIfTrue returnType cond thenBlock elseBlock) = return ()
+compileInstr (IR.JumpIfTrue returnType cond thenBlock elseBlock) = do
+  compileInstr cond
+  -- We already created separate basic blocks for the then and else branches.
+  -- Now, all we need to do is jump to them.
+  -- The `br` instruction takes an index, so we'll need to get the index of
+  -- each block within the function.
+  -- TODO (thosakwe): Grab index
+  -- Compile both the thenBlock and elseBlock to 
 compileInstr IR.UnknownInstr = return ()
 
 -- CONSTANTS
