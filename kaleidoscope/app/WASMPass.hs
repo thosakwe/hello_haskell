@@ -17,6 +17,9 @@ import qualified Syntax as Untyped
 data WASMPassState = WASMPassState
   { -- module_ :: Module,
     -- typeIndices :: Map.Map
+
+    -- | The original IR compilation unit we are turning into WASM.
+    originalIR :: IR.CompilationUnit,
     currentBlockName :: String,
     currentFunctionName :: String,
     -- | A lookup of function blocks, mapped to function names.
@@ -41,7 +44,7 @@ type WASMPassM = StateT WASMPassState IO
 
 runWASMPass :: IR.CompilationUnit -> IO Module
 runWASMPass unit = do
-  (_, state) <- runStateT (compileUnit unit) emptyState
+  (_, state) <- runStateT (compileUnit unit) (emptyState {originalIR = unit})
   let WASMPassState {exportList, functionBlocks, functionsMap, funcTypes, importList} = state
   -- Combine functions with their corresponding blocks before emitting WASM
   let functions = Map.toList functionsMap
@@ -169,12 +172,44 @@ compileInstr (IR.Call {target, args}) = do
           mapM_ compileInstr args
           emitInstr $ Wasm.Call (fromIntegral funcIndex)
     _ -> return ()
-compileInstr (IR.JumpIfTrue returnType cond thenBlock elseBlock) = do
+compileInstr (IR.JumpIfTrue returnType cond thenBlockName elseBlockName) = do
   compileInstr cond
--- We already created separate basic blocks for the then and else branches.
--- Now, all we need to do is jump to them.
--- The `br` instruction takes an index, so we'll need to get the index of
--- each block within the function.
+  -- We already created separate basic blocks for the then and else branches.
+  -- Now, all we need to do is jump to them.
+  -- The `br` instruction takes an index, so we'll need to get the index of
+  -- each block within the function.
+  funcName <- gets currentFunctionName
+  ir <- gets originalIR
+  -- Lookup the original function.
+  let mOrigFunc = Map.lookup funcName (IR.defns ir)
+  case mOrigFunc of
+    Just (IR.FuncDefn (IR.Func {name, sig, locals, blocks})) -> do
+      -- Next, get the indices of both blocks.
+      let keys = Map.keys blocks
+      let mThenIndex = elemIndex thenBlockName keys
+      let mElseIndex = elemIndex elseBlockName keys
+      case (mThenIndex, mElseIndex) of
+        (Just thenIndex, Just elseIndex) -> do
+          -- If both blocks exist, create inline blocks with jumps.
+          let thenJumpBlock =
+                Wasm.Block
+                  { blockType = Wasm.Inline Nothing,
+                    body = [Wasm.Br (fromIntegral thenIndex)]
+                  }
+          let elseJumpBlock =
+                Wasm.Block
+                  { blockType = Wasm.Inline Nothing,
+                    body = [Wasm.Br (fromIntegral elseIndex)]
+                  }
+          emitInstr $
+            Wasm.If
+              { blockType = Wasm.Inline Nothing,
+                true = [thenJumpBlock],
+                false = [elseJumpBlock]
+              }
+        _ -> return ()
+    _ -> return ()
+
 -- TODO (thosakwe): Grab index
 -- Compile both the thenBlock and elseBlock to
 compileInstr IR.UnknownInstr = return ()
@@ -183,7 +218,8 @@ compileInstr IR.UnknownInstr = return ()
 emptyState :: WASMPassState
 emptyState =
   WASMPassState
-    { currentBlockName = "",
+    { originalIR = IR.CompilationUnit {defns = Map.empty, mainInstrs = []},
+      currentBlockName = "",
       currentFunctionName = "",
       functionBlocks = Map.empty,
       functionsMap = Map.empty,
