@@ -19,10 +19,11 @@ data FuncSignature = FuncSignature {returnType :: Type, params :: [Param]}
 
 type Param = (String, Type)
 
-data Expr
+data Instr
   = Float Double
-  | BinOp Untyped.Op Expr Expr
+  | BinOp Untyped.Op Instr Instr
   | GetParam String Type
+  | UnknownInstr
   deriving (Show)
 
 -- \| GetLocal String Type
@@ -39,7 +40,7 @@ data Func = Func
 
 data BasicBlock = BasicBlock
   { name :: String,
-    instrs :: [Expr]
+    instrs :: [Instr]
   }
   deriving (Show)
 
@@ -48,5 +49,5 @@ data Defn
   | ExternDefn Name FuncSignature
   deriving (Show)
 
-newtype CompilationUnit = CompilationUnit {defns :: [Defn]}
+newtype CompilationUnit = CompilationUnit {defns :: Map.Map String Defn}
   deriving (Show)
