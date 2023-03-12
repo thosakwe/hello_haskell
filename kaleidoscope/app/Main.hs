@@ -3,8 +3,8 @@ module Main where
 import Control.Monad.Trans
 import Parser
 import System.Console.Haskeline
-import TypedASTPass
 import System.Environment (getArgs)
+import TypedASTPass
 
 main :: IO ()
 main = do
@@ -13,7 +13,7 @@ main = do
   mapM_ print args
   case args of
     [] -> runREPL
-    (fname:_) -> do
+    (fname : _) -> do
       contents <- readFile fname
       process contents
 
@@ -40,7 +40,10 @@ process line = do
       putStrLn $ "Total exprs: " ++ show (length exprs)
       mapM_ print exprs
       let result = runTypedASTPass exprs
-      putStrLn $ "Total errors: " ++ show (length $ errors result)
-      mapM_ print $ errors result
-      putStrLn "Typed compilation unit:"
-      print $ compilationUnit result
+      case errors result of
+        [] -> do
+          putStrLn "Typed compilation unit:"
+          print $ compilationUnit result
+        errors -> do
+          putStrLn $ "Total errors: " ++ show (length errors)
+          mapM_ print errors
