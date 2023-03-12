@@ -19,8 +19,10 @@ data WASMPassState = WASMPassState
     -- typeIndices :: Map.Map
     currentBlockName :: String,
     currentFunctionName :: String,
-    -- functionBlocks :: Map.Map String [Wasm.Block],
-
+    -- | A lookup of function blocks, mapped to function names.
+    -- | functionName is the index, then each entry is a map where the block
+    -- | name is the index.
+    functionBlocks :: Map.Map String (Map.Map String [Wasm.Instruction Natural]),
     -- | A lookup table of functions that will be included in the output
     -- | module.
     functionsMap :: Map.Map String Function,
@@ -41,6 +43,7 @@ runWASMPass unit = do
   return
     Module
       { types = funcTypes,
+        -- TODO (thosakwe): Emit the contents of blocks here
         functions = Map.elems functionsMap,
         tables = [],
         mems = [],
@@ -65,8 +68,12 @@ compileUnit unit = do
 compileDefn :: IR.Defn -> WASMPassM ()
 compileDefn (IR.FuncDefn func) = do
   let IR.Func {name, sig, locals, blocks} = func
+  -- Register and export the function
   let funcType = compileFuncSig sig
   emitAndExportFunction name funcType
+  -- TODO (thosakwe): Compile locals, if any...
+  -- Compile each basic block.
+  mapM_ compileBlock blocks
 compileDefn (IR.ExternDefn name sig) = do
   let funcType = compileFuncSig sig
   funcTypeIndex <- emitFuncType funcType
@@ -82,6 +89,12 @@ compileMainInstr instr = do
   -- Compile this instruction into the "main" function
   switchToFunction "main"
   compileInstr instr
+
+compileBlock :: IR.BasicBlock -> WASMPassM ()
+compileBlock (IR.BasicBlock {name, instrs}) = do
+  -- Switch into the given block and compile the instructions.
+  switchToBlock name
+  mapM_ compileInstr instrs
 
 compileFuncSig :: IR.FuncSignature -> Wasm.FuncType
 compileFuncSig (IR.FuncSignature {returnType, params}) =
@@ -127,12 +140,12 @@ compileInstr (IR.Call {target, args}) = do
     _ -> return ()
 compileInstr (IR.JumpIfTrue returnType cond thenBlock elseBlock) = do
   compileInstr cond
-  -- We already created separate basic blocks for the then and else branches.
-  -- Now, all we need to do is jump to them.
-  -- The `br` instruction takes an index, so we'll need to get the index of
-  -- each block within the function.
-  -- TODO (thosakwe): Grab index
-  -- Compile both the thenBlock and elseBlock to 
+-- We already created separate basic blocks for the then and else branches.
+-- Now, all we need to do is jump to them.
+-- The `br` instruction takes an index, so we'll need to get the index of
+-- each block within the function.
+-- TODO (thosakwe): Grab index
+-- Compile both the thenBlock and elseBlock to
 compileInstr IR.UnknownInstr = return ()
 
 -- CONSTANTS
@@ -141,6 +154,7 @@ emptyState =
   WASMPassState
     { currentBlockName = "",
       currentFunctionName = "",
+      functionBlocks = Map.empty,
       functionsMap = Map.empty,
       funcTypes = [],
       exportList = [],
@@ -219,3 +233,35 @@ modifyCurrentFunction f = do
 switchToFunction :: String -> WASMPassM ()
 switchToFunction funcName =
   modify $ \state -> state {currentFunctionName = funcName}
+
+switchToBlock :: String -> WASMPassM ()
+switchToBlock blockName = do
+  WASMPassState {currentFunctionName, functionBlocks} <- get
+  -- If the current function doesn't exist in the map yet, create
+  -- a new entry. Otherwise, get the existing one and append to it.
+  -- If the block we want to switch to doesn't exist in the map yet, create
+  -- a new entry. Otherwise, get the existing one and append to it.
+  case Map.lookup currentFunctionName functionBlocks of
+    Just existingBlockMap -> do
+      case Map.lookup blockName existingBlockMap of
+        Just _ -> do
+          -- Just change the current block name, no need to append anything.
+          modify $ \state ->
+            state {currentBlockName = blockName}
+        Nothing -> do
+          -- Add a new basic block
+          let newBlockMap = Map.insert blockName [] existingBlockMap
+          let newFuncBlockMap = Map.insert currentFunctionName newBlockMap functionBlocks
+          modify $ \state ->
+            state
+              { functionBlocks = newFuncBlockMap,
+                currentBlockName = blockName
+              }
+    Nothing -> do
+      let newBlockMap = Map.fromList [(blockName, [])]
+      let newFuncBlockMap = Map.insert currentFunctionName newBlockMap functionBlocks
+      modify $ \state ->
+        state
+          { functionBlocks = newFuncBlockMap,
+            currentBlockName = blockName
+          }
