@@ -6,6 +6,7 @@ module WASMPass where
 import Control.Monad.State
 import qualified Data.Map as Map
 import qualified Data.Text.Lazy as TL
+import GHC.Natural
 import qualified IR
 import Language.Wasm as Wasm
 import Language.Wasm.Structure as Wasm
@@ -54,7 +55,9 @@ compileUnit unit = do
   mapM_ compileDefn $ IR.defns unit
 
 compileDefn :: IR.Defn -> WasmPassM ()
-compileDefn (IR.MainInstr instr) = return ()
+compileDefn (IR.MainInstr instr) =
+  -- Compile this instruction into the "main" function
+  modify $ \state -> state {currentFunctionName = "main"}
 compileDefn (IR.FuncDefn func) = do
   let IR.Func {name, sig, locals, blocks} = func
   let funcType = compileFuncSig sig
@@ -80,6 +83,15 @@ compileType IR.FloatType = Wasm.F64
 compileType IR.UnknownType = Wasm.F64
 -- TODO (thosakwe): Is this the right type to compile a function pointer to...?
 compileType (IR.FuncType sig) = Wasm.F64
+
+compileInstr :: IR.Instr -> WasmPassM (Wasm.Instruction Natural)
+compileInstr (IR.Float value) = return $ Wasm.F64Const value
+compileInstr (IR.BinOp op left right) = return Wasm.Nop
+compileInstr (IR.GetParam name returnType) = return Wasm.Nop
+compileInstr (IR.GetFunc name returnType) = return Wasm.Nop
+compileInstr (IR.Call {target, args}) = return Wasm.Nop
+compileInstr (IR.JumpIfTrue returnType cond thenBlock elseBlock) = return Wasm.Nop
+compileInstr IR.UnknownInstr = return Wasm.Nop
 
 -- CONSTANTS
 emptyState :: WASMPassState
