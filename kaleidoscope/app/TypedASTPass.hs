@@ -8,6 +8,7 @@ import Control.Arrow (ArrowChoice (left))
 import Control.Monad.State
 import Control.Monad.Trans.Maybe
 import qualified Data.Map as Map
+import qualified Data.Set as Set
 import Debug.Trace (trace)
 import GHC.IO (unsafePerformIO)
 import KaleidoError
@@ -17,7 +18,8 @@ import TypedAST
 
 data CompilerState = CompilerState
   { funcState :: FuncState,
-    result :: CompilerResult
+    result :: CompilerResult,
+    names :: Set.Set String
   }
   deriving (Show)
 
@@ -122,8 +124,8 @@ compileExpr (Untyped.If pos cond then_ else_) = do
   -- to figure out the return type
   -- TODO (thosakwe): Add a unique-name fetcher
   -- We need to create 2 new basic blocks, one for if true, one for if false.
-  let thenBlockName = "then"
-  let elseBlockName = "else"
+  thenBlockName <- getUniqueName "then"
+  elseBlockName <- getUniqueName "else"
   emitNewBlock thenBlockName
   emitNewBlock elseBlockName
   -- To compile the logic for if and else, we need to create a new FuncState
@@ -148,7 +150,11 @@ compileExpr expr = do
 emptyCompilerState :: CompilerState
 emptyCompilerState =
   let emptyFuncState = FuncState {currentFuncName = "", currentBlockName = ""}
-   in CompilerState {funcState = emptyFuncState, result = emptyCompilerResult}
+   in CompilerState
+        { funcState = emptyFuncState,
+          names = Set.empty,
+          result = emptyCompilerResult
+        }
 
 emptyCompilerResult :: CompilerResult
 emptyCompilerResult =
@@ -219,6 +225,24 @@ getResult = gets result
 
 getCompilationUnit :: CompilerM CompilationUnit
 getCompilationUnit = gets (compilationUnit . result)
+
+getUniqueName :: String -> CompilerM String
+getUniqueName name = getNameWithIndex name 0
+
+getNameWithIndex :: String -> Int -> CompilerM String
+getNameWithIndex name idx = do
+  let nameWithIndex = name ++ show idx
+  names <- gets names
+  if Set.member nameWithIndex names
+    then getNameWithIndex name (idx + 1)
+    else do
+      let newNames = Set.insert nameWithIndex names
+      modify $ \state -> state {names = newNames}
+      return nameWithIndex
+
+--  in if not Set.member nameWithIndex names
+--       then return "a"
+--       else return "b"
 
 modifyResult :: (CompilerResult -> CompilerResult) -> CompilerM ()
 modifyResult f = do
