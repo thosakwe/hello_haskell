@@ -59,11 +59,11 @@ newtype CompilationUnit = CompilationUnit {defns :: Map.Map String Defn}
 
 ppCompilationUnit :: CompilationUnit -> Doc
 ppCompilationUnit (CompilationUnit {defns}) =
-  vcat (map (nest 4 . ppDefn) (Map.toList defns))
+  vcat (map ppDefn (Map.toList defns))
 
 ppDefn :: (String, Defn) -> Doc
 ppDefn (_, FuncDefn (Func {name, sig, locals, blocks})) =
-  text "function" <+> text name <+> ppFuncSignature sig <+> vcat (map ppBasicBlock (Map.toList blocks))
+  text "function" <+> text name <+> ppFuncSignature sig $$ vcat (map (nest 1 . ppBasicBlock) (Map.toList blocks))
 ppDefn (_, ExternDefn name sig) =
   text "extern" <+> text name <+> ppFuncSignature sig
 
@@ -82,30 +82,35 @@ ppType UnknownType = text "<unknown>"
 
 ppBasicBlock :: (String, BasicBlock) -> Doc
 ppBasicBlock (_, BasicBlock {name, instrs}) =
-  let body = nest 4 (vcat (map ppInstr instrs))
-   in text "basic block " <+> text name <+> text "{" <+> body <+> text "}"
+  let body = nest 1 (vcat (map ppInstr instrs))
+   in (text "basic block" <+> quotes (text name)) $$ nest 1 (braces body)
 
 ppInstr :: Instr -> Doc
 ppInstr (Float value) = double value
 ppInstr (BinOp op left right) =
-  text "BinOp(op="
-    <+> ppOp op
-    <+> text ", left="
-    <+> ppInstr left
-    <+> text ", right="
-    <+> ppInstr left
+  text "BinOp"
+    <+> parens
+      ( text "op="
+          <+> ppOp op
+          <+> text ", left="
+          <+> ppInstr left
+          <+> text ", right="
+          <+> ppInstr left
+      )
 ppInstr (GetParam name _) = text "GetParam" <+> text name
 ppInstr (GetFunc name _) = text "GetFunc" <+> text name
 ppInstr (Call {target, args}) =
-  text "Call (" <+> vcat (map ppInstr args) <+> text ")"
+  text "Call" $$ parens (vcat (map ppInstr args))
 ppInstr (JumpIfTrue _ cond then_ else_) =
-  text "JumpIfTrue (cond="
-    <+> ppInstr cond
-    <+> text ", then="
-    <+> text then_
-    <+> text ", else="
-    <+> text else_
-    <+> text ")"
+  text "JumpIfTrue"
+    $$ parens
+      ( text "cond="
+          <+> ppInstr cond
+          <+> text ", then="
+          <+> text then_
+          <+> text ", else="
+          <+> text else_
+      )
 ppInstr UnknownInstr = text "<unknown instruction>"
 
 ppOp :: Untyped.Op -> Doc
