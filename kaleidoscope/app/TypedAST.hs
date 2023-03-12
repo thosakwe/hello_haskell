@@ -23,6 +23,8 @@ data Instr
   = Float Double
   | BinOp Untyped.Op Instr Instr
   | GetParam String Type
+  | GetFunc String Type
+  | Call {target :: Instr, args :: [Instr]}
   | UnknownInstr
   deriving (Show)
 

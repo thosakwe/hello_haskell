@@ -93,9 +93,20 @@ compileExpr (Untyped.Var pos name) = do
   mParamType <- lookupParam name
   case mParamType of
     Nothing -> do
+      emitError pos $ "No such param '" ++ name ++ "'."
       return UnknownInstr
     Just paramType -> do
       return $ GetParam name paramType
+compileExpr (Untyped.Call pos funcName args) = do
+  mFunc <- lookupFunc funcName
+  case mFunc of
+    Nothing -> do
+      return UnknownInstr
+    Just (Func {name, sig, locals, blocks}) -> do
+      let funcType = FuncType sig
+      let target = GetFunc name funcType
+      typedArgs <- mapM compileExpr args
+      return $ Call {target, args = typedArgs}
 compileExpr expr = do
   let msg = "Unsupported expr within function: " ++ show expr
   let pos = Untyped.getPos expr
@@ -162,8 +173,12 @@ emitError pos msg = do
 lookupCurrentFunc :: State CompilerState (Maybe Func)
 lookupCurrentFunc = do
   FuncState {currentBlockName, currentFuncName} <- gets funcState
+  lookupFunc currentFuncName
+
+lookupFunc :: String -> State CompilerState (Maybe Func)
+lookupFunc name = do
   unit <- getCompilationUnit
-  let mFunc = Map.lookup currentFuncName (defns unit)
+  let mFunc = Map.lookup name (defns unit)
   case mFunc of
     Just (FuncDefn func) -> return $ Just func
     _ -> return Nothing
