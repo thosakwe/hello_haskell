@@ -19,6 +19,8 @@ data Op
   | Minus 
   | Times
   | Divide
+  | LessThan
+  | GreaterThan
   deriving (Eq, Ord, Show)
 
 type CompilationUnit = [Expr]

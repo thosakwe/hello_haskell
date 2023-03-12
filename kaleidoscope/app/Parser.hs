@@ -21,7 +21,10 @@ binary s f = Ex.Infix $ do
 
 -- TODO (thosakwe): Understand and document this...
 table =
-  [ [ binary "*" Times Ex.AssocLeft,
+  [ [ binary "<" LessThan Ex.AssocLeft,
+      binary ">" GreaterThan Ex.AssocLeft
+    ],
+    [ binary "*" Times Ex.AssocLeft,
       binary "/" Divide Ex.AssocLeft
     ],
     [ binary "+" Plus Ex.AssocLeft,
