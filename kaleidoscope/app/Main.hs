@@ -15,7 +15,7 @@ main = do
     [] -> runREPL
     (fname : _) -> do
       contents <- readFile fname
-      process contents
+      process fname contents
 
 runREPL :: IO ()
 -- runInputT is a transformer from haskeline, similar to readline
@@ -28,12 +28,12 @@ runREPL = runInputT defaultSettings loop
           -- Prints on CTRL-D
           outputStrLn "Goodbye."
         Just input -> do
-          liftIO $ process input
+          liftIO $ process "<stdin>" input
           loop
 
-process :: String -> IO ()
-process line = do
-  let result = parseToplevel line
+process :: String -> String -> IO ()
+process fname line = do
+  let result = parseCompilationUnit fname line
   case result of
     Left err -> print err
     Right exprs -> do
