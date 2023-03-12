@@ -1,11 +1,13 @@
 module Main where
 
 import Control.Monad.Trans
+import qualified Data.ByteString.Lazy as LBS
+import IR (ppCompilationUnit)
+import IRPass
+import qualified Language.Wasm as Wasm
 import Parser
 import System.Console.Haskeline
 import System.Environment (getArgs)
-import IRPass
-import IR (ppCompilationUnit)
 import Text.PrettyPrint
 import WASMPass
 
@@ -51,6 +53,9 @@ process fname line = do
           putStrLn $ render $ ppCompilationUnit unit
           module_ <- runWASMPass unit
           print module_
+          let bs = Wasm.encodeLazy module_
+          LBS.writeFile "out.wasm" bs
+          putStrLn "Wrote out.wasm"
         errors -> do
           putStrLn $ "Total errors: " ++ show (length errors)
           mapM_ print errors
