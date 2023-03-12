@@ -114,14 +114,27 @@ compileExpr (Untyped.Call pos funcName args) = do
       return $ Call {target, args = typedArgs}
 compileExpr (Untyped.If pos cond then_ else_) = do
   cond <- compileExpr cond
-  then_ <- compileExpr then_
-  else_ <- compileExpr else_
   -- TODO (thosakwe): If we ever return types besides float, then we need
   -- to figure out the return type
   -- TODO (thosakwe): Add a unique-name fetcher
   -- We need to create 2 new basic blocks, one for if true, one for if false.
   let thenBlockName = "then"
   let elseBlockName = "else"
+  emitNewBlock thenBlockName
+  emitNewBlock elseBlockName
+  -- To compile the logic for if and else, we need to create a new FuncState
+  -- for each.
+  thenBlockState <- gets $ changeBlock thenBlockName
+  elseBlockState <- gets $ changeBlock elseBlockName
+  -- Preserve the current basic block name, so we can return to it after
+  -- compiling both branches.
+  oldFuncState <- gets funcState
+  put thenBlockState
+  compileFuncBody then_
+  put elseBlockState
+  compileFuncBody else_
+  -- Restore the previous funcState.
+  modify $ \state -> state {funcState = oldFuncState}
   return $ JumpIfTrue FloatType cond thenBlockName elseBlockName
 compileExpr expr = do
   let msg = "Unsupported expr within function: " ++ show expr
@@ -147,6 +160,7 @@ emitDefn name defn = do
     let CompilationUnit {defns = oldDefns} = unit
      in unit {defns = Map.insert name defn oldDefns}
 
+-- | Emit a new instruction in the current basic block.
 emitInstr :: SourcePos -> Instr -> State CompilerState ()
 emitInstr pos instr = do
   FuncState {currentBlockName, currentFuncName} <- gets funcState
@@ -160,17 +174,15 @@ emitInstr pos instr = do
         let newInstrs = instrs block ++ [instr]
         let newBlock = block {instrs = newInstrs}
         let newBlocks = Map.insert currentBlockName newBlock (blocks func)
-        let newFunc = FuncDefn $ func {blocks = newBlocks}
         func {blocks = newBlocks}
 
+-- | Create a new block in the current function.
 emitNewBlock :: String -> State CompilerState ()
 emitNewBlock name = do
-  mfunc <- lookupCurrentFunc
-  case mfunc of
-    Nothing -> return ()
-    Just func -> do
-      let newBlock = BasicBlock {name, instrs = []}
-      return ()
+  modifyCurrentFunction $ \func ->
+    let newBlock = BasicBlock {name, instrs = []}
+        newBlocks = Map.insert name newBlock (blocks func)
+     in func {blocks = newBlocks}
 
 emitError :: SourcePos -> String -> State CompilerState ()
 emitError pos msg = do
@@ -236,3 +248,11 @@ modifyCurrentFunction f = do
 --     errors = [],
 --     funcState =
 --   }
+
+-- | Copies the compiler state, but with a different basic block as the
+-- context.
+changeBlock :: String -> CompilerState -> CompilerState
+changeBlock newBlockName state =
+  let fs = funcState state
+      newFuncState = fs {currentBlockName = newBlockName}
+   in state {funcState = newFuncState}
