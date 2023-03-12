@@ -14,10 +14,10 @@ data Type
   | UnknownType
   deriving (Show)
 
-data FuncSignature = FuncSignature {returnType :: Type, params :: [Param]}
+data FuncSignature = FuncSignature {returnType :: Type, params :: Map.Map String Type}
   deriving (Show)
 
-type Param = (String, Type)
+-- type Param = (String, Type)
 
 data Instr
   = Float Double
@@ -33,7 +33,7 @@ data Instr
 data Func = Func
   { name :: Name,
     sig :: FuncSignature,
-    locals :: [Param],
+    locals :: Map.Map String Type,
     blocks :: Map.Map String BasicBlock
   }
   deriving (Show)

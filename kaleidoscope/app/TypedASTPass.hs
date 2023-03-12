@@ -47,8 +47,8 @@ compileUnit untypedExprs = do
 compileTopLevelExpr :: Untyped.Expr -> State CompilerState ()
 compileTopLevelExpr (Untyped.Function pos name params body) = do
   params <- mapM compileParam params
-  let sig = FuncSignature {params, returnType = FloatType}
-  let locals = []
+  let sig = FuncSignature {params = Map.fromList params, returnType = FloatType}
+  let locals = Map.empty
   -- Create the "entry" block.
   let entryBlock = BasicBlock "entry" []
   let blocks = Map.fromList [("entry", entryBlock)]
@@ -65,7 +65,7 @@ compileTopLevelExpr (Untyped.Extern pos name params) = do
   let sig =
         FuncSignature
           { returnType = FloatType,
-            params
+            params = Map.fromList params
           }
   emitDefn name $ ExternDefn name sig
 compileTopLevelExpr expr = do
@@ -88,8 +88,16 @@ compileFuncBody body = do
 compileExpr :: Untyped.Expr -> State CompilerState Instr
 compileExpr (Untyped.Float pos value) = do
   return $ Float value
+compileExpr (Untyped.Var pos name) = do
+  -- Try to lookup the given param...
+  mParamType <- lookupParam name
+  case mParamType of
+    Nothing -> do
+      return UnknownInstr
+    Just paramType -> do
+      return $ GetParam name paramType
 compileExpr expr = do
-  let msg = "Unsupported expr: " ++ show expr
+  let msg = "Unsupported expr within function: " ++ show expr
   let pos = Untyped.getPos expr
   emitError pos msg
   return UnknownInstr
@@ -135,7 +143,8 @@ emitInstr pos instr = do
            in emitError pos msg
         Just block -> do
           -- Add the instr.
-          let newBlock = block {instrs = instrs block ++ [instr]}
+          let newInstrs = instrs block ++ [instr]
+          let newBlock = block {instrs = newInstrs}
           let newBlocks = Map.insert currentBlockName newBlock (blocks func)
           let newFunc = FuncDefn $ func {blocks = newBlocks}
           -- Create a new definitions map.
@@ -149,6 +158,24 @@ emitError :: SourcePos -> String -> State CompilerState ()
 emitError pos msg = do
   let err = KaleidoError pos msg
   modifyResult $ \result -> result {errors = errors result ++ [err]}
+
+lookupCurrentFunc :: State CompilerState (Maybe Func)
+lookupCurrentFunc = do
+  FuncState {currentBlockName, currentFuncName} <- gets funcState
+  unit <- getCompilationUnit
+  let mFunc = Map.lookup currentFuncName (defns unit)
+  case mFunc of
+    Just (FuncDefn func) -> return $ Just func
+    _ -> return Nothing
+
+lookupParam :: String -> State CompilerState (Maybe Type)
+lookupParam name = do
+  mFunc <- lookupCurrentFunc
+  case mFunc of
+    Nothing -> return Nothing
+    Just func -> do
+      let FuncSignature {returnType, params} = sig func
+      return $ Map.lookup name params
 
 getResult :: State CompilerState CompilerResult
 getResult = gets result
