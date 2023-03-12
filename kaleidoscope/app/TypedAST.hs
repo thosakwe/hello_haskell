@@ -95,7 +95,7 @@ ppInstr (BinOp op left right) =
           <+> text ", left="
           <+> ppInstr left
           <+> text ", right="
-          <+> ppInstr left
+          <+> ppInstr right
       )
 ppInstr (GetParam name _) = text "GetParam" <+> text name
 ppInstr (GetFunc name _) = text "GetFunc" <+> text name
