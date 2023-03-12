@@ -11,6 +11,7 @@ import KaleidoError
 import qualified Syntax as Untyped
 import Text.Parsec (SourcePos)
 import TypedAST
+import Control.Arrow (ArrowChoice(left))
 
 data CompilerState = CompilerState
   { funcState :: FuncState,
@@ -88,6 +89,10 @@ compileFuncBody body = do
 compileExpr :: Untyped.Expr -> State CompilerState Instr
 compileExpr (Untyped.Float pos value) = do
   return $ Float value
+compileExpr (Untyped.BinOp pos op left right) = do
+  left <- compileExpr left
+  right <- compileExpr right
+  return $ BinOp op left right
 compileExpr (Untyped.Var pos name) = do
   -- Try to lookup the given param...
   mParamType <- lookupParam name

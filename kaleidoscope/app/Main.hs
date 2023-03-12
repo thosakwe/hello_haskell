@@ -4,6 +4,32 @@ import Control.Monad.Trans
 import Parser
 import System.Console.Haskeline
 import TypedASTPass
+import System.Environment (getArgs)
+
+main :: IO ()
+main = do
+  args <- getArgs
+  putStrLn "Args: "
+  mapM_ print args
+  case args of
+    [] -> runREPL
+    (fname:_) -> do
+      contents <- readFile fname
+      process contents
+
+runREPL :: IO ()
+-- runInputT is a transformer from haskeline, similar to readline
+runREPL = runInputT defaultSettings loop
+  where
+    loop = do
+      minput <- getInputLine "kaleido> "
+      case minput of
+        Nothing -> do
+          -- Prints on CTRL-D
+          outputStrLn "Goodbye."
+        Just input -> do
+          liftIO $ process input
+          loop
 
 process :: String -> IO ()
 process line = do
@@ -18,17 +44,3 @@ process line = do
       mapM_ print $ errors result
       putStrLn "Typed compilation unit:"
       print $ compilationUnit result
-
-main :: IO ()
--- runInputT is a transformer from haskeline, similar to readline
-main = runInputT defaultSettings loop
-  where
-    loop = do
-      minput <- getInputLine "kaleido> "
-      case minput of
-        Nothing -> do
-          -- Prints on CTRL-D
-          outputStrLn "Goodbye."
-        Just input -> do
-          liftIO $ process input
-          loop
