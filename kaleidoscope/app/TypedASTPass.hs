@@ -76,8 +76,8 @@ compileTopLevelExpr (Untyped.Extern pos name params) = do
           }
   emitDefn name $ ExternDefn name sig
 compileTopLevelExpr expr = do
-  let pos = Untyped.getPos expr
-  emitError pos "Not a function or extern."
+  instr <- compileExpr expr
+  emitMainInstr instr
 
 compileParam :: Untyped.Expr -> CompilerM (String, Type)
 compileParam (Untyped.Var _ name) = return (name, FloatType)
@@ -160,7 +160,7 @@ emptyCompilerResult :: CompilerResult
 emptyCompilerResult =
   CompilerResult
     { errors = [],
-      compilationUnit = CompilationUnit {defns = Map.empty}
+      compilationUnit = CompilationUnit {defns = Map.empty, mainInstrs = []}
     }
 
 emitDefn :: String -> Defn -> CompilerM ()
@@ -168,6 +168,11 @@ emitDefn name defn = do
   modifyCompilationUnit $ \unit ->
     let CompilationUnit {defns = oldDefns} = unit
      in unit {defns = Map.insert name defn oldDefns}
+
+emitMainInstr :: Instr -> CompilerM ()
+emitMainInstr instr =
+  modifyCompilationUnit $ \unit ->
+    unit {mainInstrs = mainInstrs unit ++ [instr]}
 
 -- | Emit a new instruction in the current basic block.
 emitInstr :: SourcePos -> Instr -> CompilerM ()

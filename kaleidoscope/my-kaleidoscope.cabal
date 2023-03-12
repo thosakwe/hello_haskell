@@ -50,3 +50,4 @@ executable my-kaleidoscope
         , wasm
     hs-source-dirs:   app
     default-language: Haskell2010
+    ghc-options: -Wall -fwarn-incomplete-patterns

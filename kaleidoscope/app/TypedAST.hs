@@ -52,20 +52,29 @@ data BasicBlock = BasicBlock
 data Defn
   = FuncDefn Func
   | ExternDefn Name FuncSignature
+  | -- | an instruction that will run within `main`, it's at the top level.
+    MainInstr Instr
   deriving (Show)
 
-newtype CompilationUnit = CompilationUnit {defns :: Map.Map String Defn}
+data CompilationUnit = CompilationUnit
+  { defns :: Map.Map String Defn,
+    mainInstrs :: [Instr]
+  }
   deriving (Show)
 
 ppCompilationUnit :: CompilationUnit -> Doc
-ppCompilationUnit (CompilationUnit {defns}) =
-  vcat (map ppDefn (Map.toList defns))
+ppCompilationUnit (CompilationUnit {defns, mainInstrs}) =
+  let mainInstrsDoc = text "Main Instrs:" $$ vcat (map ppInstr mainInstrs)
+      defnsDoc = text "Defns:" $$ vcat (map ppDefn (Map.toList defns))
+   in mainInstrsDoc $$ defnsDoc
 
 ppDefn :: (String, Defn) -> Doc
 ppDefn (_, FuncDefn (Func {name, sig, locals, blocks})) =
   text "function" <+> text name <+> ppFuncSignature sig $$ vcat (map (nest 1 . ppBasicBlock) (Map.toList blocks))
 ppDefn (_, ExternDefn name sig) =
   text "extern" <+> text name <+> ppFuncSignature sig
+ppDefn (_, MainInstr instr) =
+  text "MainInstr" $$ ppInstr instr
 
 ppFuncSignature :: FuncSignature -> Doc
 ppFuncSignature (FuncSignature {returnType, params}) =
@@ -100,7 +109,7 @@ ppInstr (BinOp op left right) =
 ppInstr (GetParam name _) = text "GetParam" <+> text name
 ppInstr (GetFunc name _) = text "GetFunc" <+> text name
 ppInstr (Call {target, args}) =
-  text "Call" $$ parens (vcat (map ppInstr args))
+  text "Call" <+> ppInstr target $$ parens (vcat (map ppInstr args))
 ppInstr (JumpIfTrue _ cond then_ else_) =
   text "JumpIfTrue"
     $$ parens
