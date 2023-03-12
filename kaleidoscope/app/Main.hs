@@ -37,8 +37,8 @@ process fname line = do
   case result of
     Left err -> print err
     Right exprs -> do
-      putStrLn $ "Total exprs: " ++ show (length exprs)
-      mapM_ print exprs
+      -- putStrLn $ "Total exprs: " ++ show (length exprs)
+      -- mapM_ print exprs
       let result = runTypedASTPass exprs
       case errors result of
         [] -> do
