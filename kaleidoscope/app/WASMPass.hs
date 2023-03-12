@@ -22,7 +22,7 @@ data WASMPassState = WASMPassState
     -- | A lookup of function blocks, mapped to function names.
     -- | functionName is the index, then each entry is a map where the block
     -- | name is the index.
-    functionBlocks :: Map.Map String (Map.Map String [Wasm.Instruction Natural]),
+    functionBlocks :: FunctionBlockMap,
     -- | A lookup table of functions that will be included in the output
     -- | module.
     functionsMap :: Map.Map String Function,
@@ -33,18 +33,23 @@ data WASMPassState = WASMPassState
     exportList :: [Wasm.Export],
     importList :: [Wasm.Import]
   }
+  deriving (Show)
+
+type FunctionBlockMap = Map.Map String (Map.Map String [Wasm.Instruction Natural])
 
 type WASMPassM = StateT WASMPassState IO
 
 runWASMPass :: IR.CompilationUnit -> IO Module
 runWASMPass unit = do
   (_, state) <- runStateT (compileUnit unit) emptyState
-  let WASMPassState {exportList, functionsMap, funcTypes, importList} = state
+  let WASMPassState {exportList, functionBlocks, functionsMap, funcTypes, importList} = state
+  -- Combine functions with their corresponding blocks before emitting WASM
+  let functions = Map.toList functionsMap
+  let combinedFunctions = map (combineFunctionWithBlocks functionBlocks) functions
   return
     Module
       { types = funcTypes,
-        -- TODO (thosakwe): Emit the contents of blocks here
-        functions = Map.elems functionsMap,
+        functions = combinedFunctions,
         tables = [],
         mems = [],
         globals = [],
@@ -54,6 +59,30 @@ runWASMPass unit = do
         imports = importList,
         exports = exportList
       }
+
+-- | Inlines all blocks from the state corresponding with this function into
+-- | the function.
+-- |
+-- | Within WASMPassState, basic blocks are kept in a separate map so that
+-- | it's possible to modify them from compiler methods. But when emitting the
+-- | final module, these blocks must live within a function.
+combineFunctionWithBlocks :: FunctionBlockMap -> (String, Wasm.Function) -> Wasm.Function
+combineFunctionWithBlocks functionBlocks (name, func) =
+  case Map.lookup name functionBlocks of
+    Nothing -> func
+    Just blockMap ->
+      let blocks = Map.elems blockMap
+          blockInstrs =
+            map
+              ( \block ->
+                  Wasm.Block
+                    { blockType = Wasm.Inline Nothing,
+                      body = block
+                    }
+              )
+              blocks
+          Wasm.Function {body} = func
+       in func {body = body ++ blockInstrs}
 
 compileUnit :: IR.CompilationUnit -> WASMPassM ()
 compileUnit unit = do
@@ -72,6 +101,8 @@ compileDefn (IR.FuncDefn func) = do
   let funcType = compileFuncSig sig
   emitAndExportFunction name funcType
   -- TODO (thosakwe): Compile locals, if any...
+  -- Switch context before compilation.
+  switchToFunction name
   -- Compile each basic block.
   mapM_ compileBlock blocks
 compileDefn (IR.ExternDefn name sig) = do
@@ -213,10 +244,8 @@ emitFuncType type_ = do
 
 emitInstr :: Instruction Natural -> WASMPassM ()
 emitInstr instr = do
-  -- TODO (thosakwe): Lookup basic block, don't emit raw into the function
-  modifyCurrentFunction $ \func ->
-    let Wasm.Function {body = oldBody} = func
-     in func {body = oldBody ++ [instr]}
+  -- Lookup basic block, don't emit raw into the function
+  modifyCurrentBlock instr $ \instrs -> instrs ++ [instr]
 
 -- | Helper for modifying the current function, if any exists.
 modifyCurrentFunction :: (Wasm.Function -> Wasm.Function) -> WASMPassM ()
@@ -232,14 +261,18 @@ modifyCurrentFunction f = do
 
 -- | Helper for modifying the current block, if any exists.
 modifyCurrentBlock ::
-  ([Wasm.Instruction Natural] -> [Wasm.Instruction Natural]) -> WASMPassM ()
-modifyCurrentBlock f = do
+  Wasm.Instruction Natural ->
+  ([Wasm.Instruction Natural] -> [Wasm.Instruction Natural]) ->
+  WASMPassM ()
+modifyCurrentBlock instr f = do
   WASMPassState {currentBlockName, currentFunctionName, functionBlocks} <- get
   case Map.lookup currentFunctionName functionBlocks of
-    Nothing -> return ()
+    Nothing -> do
+      return ()
     Just existingBlockMap -> do
       case Map.lookup currentBlockName existingBlockMap of
-        Nothing -> return ()
+        Nothing -> do
+          return ()
         Just instrs -> do
           -- Now that we've found the correct block/instruction list, perform
           -- the transformation.
@@ -248,8 +281,9 @@ modifyCurrentBlock f = do
           modify $ \state -> state {functionBlocks = newFuncBlockMap}
 
 switchToFunction :: String -> WASMPassM ()
-switchToFunction funcName =
+switchToFunction funcName = do
   modify $ \state -> state {currentFunctionName = funcName}
+  switchToBlock "entry"
 
 switchToBlock :: String -> WASMPassM ()
 switchToBlock blockName = do
