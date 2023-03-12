@@ -4,6 +4,7 @@
 module WASMPass where
 
 import Control.Monad.State
+import Data.List (elemIndex)
 import qualified Data.Map as Map
 import qualified Data.Text.Lazy as TL
 import GHC.IO (unsafePerformIO)
@@ -11,11 +12,15 @@ import GHC.Natural
 import qualified IR
 import Language.Wasm as Wasm
 import Language.Wasm.Structure as Wasm
+import qualified Syntax as Untyped
 
 data WASMPassState = WASMPassState
   { -- module_ :: Module,
     -- typeIndices :: Map.Map
+    currentBlockName :: String,
     currentFunctionName :: String,
+    -- functionBlocks :: Map.Map String [Wasm.Block],
+
     -- | A lookup table of functions that will be included in the output
     -- | module.
     functionsMap :: Map.Map String Function,
@@ -76,8 +81,7 @@ compileMainInstr :: IR.Instr -> WASMPassM ()
 compileMainInstr instr = do
   -- Compile this instruction into the "main" function
   switchToFunction "main"
-  wasmInstr <- compileInstr instr
-  emitInstr wasmInstr
+  compileInstr instr
 
 compileFuncSig :: IR.FuncSignature -> Wasm.FuncType
 compileFuncSig (IR.FuncSignature {returnType, params}) =
@@ -91,20 +95,45 @@ compileType IR.UnknownType = Wasm.F64
 -- TODO (thosakwe): Is this the right type to compile a function pointer to...?
 compileType (IR.FuncType sig) = Wasm.F64
 
-compileInstr :: IR.Instr -> WASMPassM (Wasm.Instruction Natural)
-compileInstr (IR.Float value) = return $ Wasm.F64Const value
-compileInstr (IR.BinOp op left right) = return Wasm.Nop
-compileInstr (IR.GetParam name returnType) = return Wasm.Nop
-compileInstr (IR.GetFunc name returnType) = return Wasm.Nop
-compileInstr (IR.Call {target, args}) = return Wasm.Nop
-compileInstr (IR.JumpIfTrue returnType cond thenBlock elseBlock) = return Wasm.Nop
-compileInstr IR.UnknownInstr = return Wasm.Nop
+-- | Compiles an IR instruction to WASM.
+-- | Because WASM is a stack machine, we don't need to return a value here.
+compileInstr :: IR.Instr -> WASMPassM ()
+compileInstr (IR.Float value) = emitInstr $ Wasm.F64Const value
+compileInstr (IR.BinOp op left right) = do
+  compileInstr left
+  compileInstr right
+  case op of
+    Untyped.Plus -> emitInstr $ Wasm.FBinOp Wasm.BS64 Wasm.FAdd
+    Untyped.Minus -> emitInstr $ Wasm.FBinOp Wasm.BS64 Wasm.FSub
+    Untyped.Times -> emitInstr $ Wasm.FBinOp Wasm.BS64 Wasm.FMul
+    Untyped.Divide -> emitInstr $ Wasm.FBinOp Wasm.BS64 Wasm.FDiv
+    Untyped.LessThan -> emitInstr $ Wasm.FRelOp Wasm.BS64 Wasm.FLt
+    Untyped.GreaterThan -> emitInstr $ Wasm.FRelOp Wasm.BS64 Wasm.FGt
+compileInstr (IR.GetParam name returnType) = return ()
+compileInstr (IR.GetFunc name returnType) = return ()
+compileInstr (IR.Call {target, args}) = do
+  case target of
+    -- Only a GetFunc can be called, because it includes a function name.
+    IR.GetFunc name _ -> do
+      -- WASM calls require the index of the function, so look it up in the
+      -- functionsMap.
+      funcMap <- gets functionsMap
+      case elemIndex name (Map.keys funcMap) of
+        Nothing -> return ()
+        Just funcIndex -> do
+          -- Compile each of the arguments, so they'll be present on the stack.
+          mapM_ compileInstr args
+          emitInstr $ Wasm.Call (fromIntegral funcIndex)
+    _ -> return ()
+compileInstr (IR.JumpIfTrue returnType cond thenBlock elseBlock) = return ()
+compileInstr IR.UnknownInstr = return ()
 
 -- CONSTANTS
 emptyState :: WASMPassState
 emptyState =
   WASMPassState
-    { currentFunctionName = "",
+    { currentBlockName = "",
+      currentFunctionName = "",
       functionsMap = Map.empty,
       funcTypes = [],
       exportList = [],
