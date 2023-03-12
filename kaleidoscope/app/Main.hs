@@ -3,13 +3,18 @@ module Main where
 import Control.Monad.Trans
 import Parser
 import System.Console.Haskeline
+import TypedASTPass
 
 process :: String -> IO ()
 process line = do
   let result = parseToplevel line
   case result of
     Left err -> print err
-    Right exprs -> mapM_ print exprs
+    Right exprs -> do
+      -- mapM_ print exprs
+      let result = runTypedASTPass exprs
+      mapM_ print $ errors result
+      print $ compilationUnit result
 
 main :: IO ()
 -- runInputT is a transformer from haskeline, similar to readline
