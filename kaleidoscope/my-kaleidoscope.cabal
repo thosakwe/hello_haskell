@@ -39,6 +39,7 @@ executable my-kaleidoscope
     -- other-extensions:
     build-depends:
         base ^>=4.16.4.0
+        , bytestring
         , containers
         , haskeline
         -- , llvm-hs

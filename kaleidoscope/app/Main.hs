@@ -7,6 +7,7 @@ import System.Environment (getArgs)
 import IRPass
 import IR (ppCompilationUnit)
 import Text.PrettyPrint
+import WASMPass
 
 main :: IO ()
 main = do
@@ -46,7 +47,10 @@ process fname line = do
         [] -> do
           putStrLn "Typed compilation unit:"
           -- print $ compilationUnit result
-          putStrLn $ render $ ppCompilationUnit $ compilationUnit result
+          let unit = compilationUnit result
+          putStrLn $ render $ ppCompilationUnit unit
+          module_ <- runWASMPass unit
+          print module_
         errors -> do
           putStrLn $ "Total errors: " ++ show (length errors)
           mapM_ print errors
