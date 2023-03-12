@@ -11,6 +11,7 @@ type Name = String
 data Type
   = FloatType
   | FuncType FuncSignature
+  | UnknownType
   deriving (Show)
 
 data FuncSignature = FuncSignature {returnType :: Type, params :: [Param]}

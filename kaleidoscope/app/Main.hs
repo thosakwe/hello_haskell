@@ -11,9 +11,12 @@ process line = do
   case result of
     Left err -> print err
     Right exprs -> do
-      -- mapM_ print exprs
+      putStrLn $ "Total exprs: " ++ show (length exprs)
+      mapM_ print exprs
       let result = runTypedASTPass exprs
+      putStrLn $ "Total errors: " ++ show (length $ errors result)
       mapM_ print $ errors result
+      putStrLn "Typed compilation unit:"
       print $ compilationUnit result
 
 main :: IO ()
