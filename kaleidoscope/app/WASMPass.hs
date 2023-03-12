@@ -48,12 +48,7 @@ compileUnit :: IR.CompilationUnit -> WasmPassM ()
 compileUnit unit = do
   -- Register and export the "main" function
   let mainType = Wasm.FuncType {params = [], results = [Wasm.F64]}
-  mainIndex <- emitFunction "main" mainType
-  emitExport $
-    Wasm.Export
-      { name = TL.pack "main",
-        desc = Wasm.ExportFunc (fromIntegral mainIndex)
-      }
+  emitAndExportFunction "main" mainType
   return ()
 
 compileFuncSig :: IR.FuncSignature -> Wasm.FuncType
@@ -100,3 +95,14 @@ emitFunction name type_ = do
         funcTypes = funcTypes ++ [type_]
       }
   return funcIndex
+
+-- | Emit a new function, and add it to the module's exports.
+emitAndExportFunction :: String -> FuncType -> WasmPassM ()
+emitAndExportFunction name type_ = do
+  index <- emitFunction name type_
+  emitExport $
+    Wasm.Export
+      { name = TL.pack name,
+        desc = Wasm.ExportFunc (fromIntegral index)
+      }
+
