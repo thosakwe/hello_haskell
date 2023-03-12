@@ -52,8 +52,6 @@ data BasicBlock = BasicBlock
 data Defn
   = FuncDefn Func
   | ExternDefn Name FuncSignature
-  | -- | an instruction that will run within `main`, it's at the top level.
-    MainInstr Instr
   deriving (Show)
 
 data CompilationUnit = CompilationUnit
@@ -73,8 +71,6 @@ ppDefn (_, FuncDefn (Func {name, sig, locals, blocks})) =
   text "function" <+> text name <+> ppFuncSignature sig $$ vcat (map (nest 1 . ppBasicBlock) (Map.toList blocks))
 ppDefn (_, ExternDefn name sig) =
   text "extern" <+> text name <+> ppFuncSignature sig
-ppDefn (_, MainInstr instr) =
-  text "MainInstr" $$ ppInstr instr
 
 ppFuncSignature :: FuncSignature -> Doc
 ppFuncSignature (FuncSignature {returnType, params}) =
