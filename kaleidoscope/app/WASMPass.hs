@@ -21,7 +21,8 @@ data WASMPassState = WASMPassState
     -- | there is a global array of function types, and functions types are
     -- | actually just an index of this collection.
     funcTypes :: [FuncType],
-    exportList :: [Wasm.Export]
+    exportList :: [Wasm.Export],
+    importList :: [Wasm.Import]
   }
 
 type WasmPassM = StateT WASMPassState IO
@@ -29,7 +30,7 @@ type WasmPassM = StateT WASMPassState IO
 runWASMPass :: IR.CompilationUnit -> IO Module
 runWASMPass unit = do
   (_, state) <- runStateT (compileUnit unit) emptyState
-  let WASMPassState {exportList, functionsMap, funcTypes} = state
+  let WASMPassState {exportList, functionsMap, funcTypes, importList} = state
   return
     Module
       { types = funcTypes,
@@ -40,7 +41,7 @@ runWASMPass unit = do
         elems = [],
         datas = [],
         start = Nothing,
-        imports = [],
+        imports = importList,
         exports = exportList
       }
 
@@ -49,7 +50,21 @@ compileUnit unit = do
   -- Register and export the "main" function
   let mainType = Wasm.FuncType {params = [], results = [Wasm.F64]}
   emitAndExportFunction "main" mainType
-  return ()
+  -- Compile each definition
+  mapM_ compileDefn $ IR.defns unit
+
+compileDefn :: IR.Defn -> WasmPassM ()
+compileDefn (IR.MainInstr instr) = return ()
+compileDefn (IR.FuncDefn func) = return ()
+compileDefn (IR.ExternDefn name sig) = do
+  let funcType = compileFuncSig sig
+  funcTypeIndex <- emitFuncType funcType
+  emitImport $
+    Wasm.Import
+      { sourceModule = TL.pack importModuleName,
+        name = TL.pack name,
+        desc = Wasm.ImportFunc (fromIntegral funcTypeIndex)
+      }
 
 compileFuncSig :: IR.FuncSignature -> Wasm.FuncType
 compileFuncSig (IR.FuncSignature {returnType, params}) =
@@ -59,22 +74,41 @@ compileFuncSig (IR.FuncSignature {returnType, params}) =
 
 compileType :: IR.Type -> Wasm.ValueType
 compileType IR.FloatType = Wasm.F64
-compileType (IR.UnknownType) = Wasm.F64
+compileType IR.UnknownType = Wasm.F64
 -- TODO (thosakwe): Is this the right type to compile a function pointer to...?
 compileType (IR.FuncType sig) = Wasm.F64
 
+-- CONSTANTS
 emptyState :: WASMPassState
 emptyState =
   WASMPassState
     { currentFunctionName = "",
       functionsMap = Map.empty,
       funcTypes = [],
-      exportList = []
+      exportList = [],
+      importList = []
     }
+
+importModuleName :: String
+importModuleName = "imports"
 
 emitExport :: Wasm.Export -> WasmPassM ()
 emitExport export =
   modify $ \state -> state {exportList = exportList state ++ [export]}
+
+emitImport :: Wasm.Import -> WasmPassM ()
+emitImport import_ =
+  modify $ \state -> state {importList = importList state ++ [import_]}
+
+-- | Emit a new function, and add it to the module's exports.
+emitAndExportFunction :: String -> FuncType -> WasmPassM ()
+emitAndExportFunction name type_ = do
+  index <- emitFunction name type_
+  emitExport $
+    Wasm.Export
+      { name = TL.pack name,
+        desc = Wasm.ExportFunc (fromIntegral index)
+      }
 
 -- | Adds a new function with the given name and type to the module.
 -- | The function locals and body will be empty.
@@ -96,13 +130,11 @@ emitFunction name type_ = do
       }
   return funcIndex
 
--- | Emit a new function, and add it to the module's exports.
-emitAndExportFunction :: String -> FuncType -> WasmPassM ()
-emitAndExportFunction name type_ = do
-  index <- emitFunction name type_
-  emitExport $
-    Wasm.Export
-      { name = TL.pack name,
-        desc = Wasm.ExportFunc (fromIntegral index)
-      }
-
+-- | Adds a new function type to the list, and returns the index.
+emitFuncType :: FuncType -> WasmPassM Int
+emitFuncType type_ = do
+  funcTypes <- gets funcTypes
+  let funcTypeIndex = fromIntegral $ length funcTypes
+  modify $ \state ->
+    state {funcTypes = funcTypes ++ [type_]}
+  return funcTypeIndex
