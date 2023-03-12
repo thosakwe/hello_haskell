@@ -29,7 +29,7 @@ type WasmPassM = StateT WASMPassState IO
 runWASMPass :: IR.CompilationUnit -> IO Module
 runWASMPass unit = do
   (_, state) <- runStateT (compileUnit unit) emptyState
-  let WASMPassState {functionsMap, funcTypes} = state
+  let WASMPassState {exportList, functionsMap, funcTypes} = state
   return
     Module
       { types = funcTypes,
@@ -41,7 +41,7 @@ runWASMPass unit = do
         datas = [],
         start = Nothing,
         imports = [],
-        exports = []
+        exports = exportList
       }
 
 compileUnit :: IR.CompilationUnit -> WasmPassM ()
