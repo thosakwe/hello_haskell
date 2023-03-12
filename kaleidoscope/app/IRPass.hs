@@ -2,7 +2,7 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 -- | A semantic analyzer that turns the untyped AST into a typed one.
-module TypedASTPass where
+module IRPass where
 
 import Control.Arrow (ArrowChoice (left))
 import Control.Monad.State
@@ -11,10 +11,10 @@ import qualified Data.Map as Map
 import qualified Data.Set as Set
 import Debug.Trace (trace)
 import GHC.IO (unsafePerformIO)
+import IR
 import KaleidoError
 import qualified Syntax as Untyped
 import Text.Parsec (SourcePos)
-import TypedAST
 
 data CompilerState = CompilerState
   { funcState :: FuncState,
@@ -37,8 +37,8 @@ data FuncState = FuncState
 
 type CompilerM = State CompilerState
 
-runTypedASTPass :: Untyped.CompilationUnit -> CompilerResult
-runTypedASTPass untypedExprs =
+runIRPass :: Untyped.CompilationUnit -> CompilerResult
+runIRPass untypedExprs =
   -- let _ = map analyzeTopLevelExpr untypedExprs in
   -- let _ = runState analyzeTopLevelExpr untypedExprs in
   let (_, CompilerState {result}) = runState (compileUnit untypedExprs) emptyCompilerState

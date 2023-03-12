@@ -4,8 +4,8 @@ import Control.Monad.Trans
 import Parser
 import System.Console.Haskeline
 import System.Environment (getArgs)
-import TypedASTPass
-import TypedAST (ppCompilationUnit)
+import IRPass
+import IR (ppCompilationUnit)
 import Text.PrettyPrint
 
 main :: IO ()
@@ -41,7 +41,7 @@ process fname line = do
     Right exprs -> do
       -- putStrLn $ "Total exprs: " ++ show (length exprs)
       -- mapM_ print exprs
-      let result = runTypedASTPass exprs
+      let result = runIRPass exprs
       case errors result of
         [] -> do
           putStrLn "Typed compilation unit:"

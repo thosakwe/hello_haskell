@@ -1,7 +1,7 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE NamedFieldPuns #-}
 
-module TypedAST where
+module IR where
 
 import qualified Data.Map as Map
 import qualified Syntax as Untyped
