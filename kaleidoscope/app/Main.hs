@@ -8,6 +8,7 @@ import qualified Language.Wasm as Wasm
 import Parser
 import System.Console.Haskeline
 import System.Environment (getArgs)
+import System.FilePath (replaceExtension)
 import Text.PrettyPrint
 import WASMPass
 
@@ -20,7 +21,8 @@ main = do
     [] -> runREPL
     (fname : _) -> do
       contents <- readFile fname
-      process fname contents
+      let outputFname = replaceExtension fname "wasm"
+      process fname outputFname contents
 
 runREPL :: IO ()
 -- runInputT is a transformer from haskeline, similar to readline
@@ -33,11 +35,11 @@ runREPL = runInputT defaultSettings loop
           -- Prints on CTRL-D
           outputStrLn "Goodbye."
         Just input -> do
-          liftIO $ process "<stdin>" input
+          liftIO $ process "<stdin>" "out.wasm" input
           loop
 
-process :: String -> String -> IO ()
-process fname line = do
+process :: String -> String -> String -> IO ()
+process fname outputFname line = do
   let result = parseCompilationUnit fname line
   case result of
     Left err -> print err
@@ -54,8 +56,8 @@ process fname line = do
           module_ <- runWASMPass unit
           print module_
           let bs = Wasm.encodeLazy module_
-          LBS.writeFile "out.wasm" bs
-          putStrLn "Wrote out.wasm"
+          LBS.writeFile outputFname bs
+          putStrLn $ "Wrote " ++ outputFname
         errors -> do
           putStrLn $ "Total errors: " ++ show (length errors)
           mapM_ print errors

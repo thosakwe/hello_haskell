@@ -41,6 +41,7 @@ executable my-kaleidoscope
         base ^>=4.16.4.0
         , bytestring
         , containers
+        , filepath
         , haskeline
         -- , llvm-hs
         -- , llvm-hs-pure
