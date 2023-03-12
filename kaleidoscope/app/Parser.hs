@@ -68,6 +68,16 @@ extern = do
   params <- parens $ many variable
   return $ Extern pos name params
 
+if_ :: Parser Expr
+if_ = do
+  pos <- getSourcePos
+  reserved "if"
+  cond <- expr
+  reserved "then"
+  then_ <- expr
+  reserved "else"
+  If pos cond then_ <$> expr
+
 call :: Parser Expr
 call = do
   pos <- getSourcePos
@@ -81,6 +91,7 @@ factor =
     <|> try int
     <|> try extern
     <|> try function
+    <|> try if_
     <|> try call
     <|> variable
     <|> parens expr

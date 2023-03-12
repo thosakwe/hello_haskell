@@ -15,7 +15,7 @@ lexer :: Tok.TokenParser ()
 lexer = Tok.makeTokenParser style
   where
     ops = ["+", "*", "-", ";"]
-    names = ["def", "extern"]
+    names = ["def", "else", "extern", "if", "then"]
     style =
       emptyDef
         { Tok.commentLine = "#",

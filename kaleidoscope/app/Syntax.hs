@@ -11,6 +11,7 @@ data Expr
   | Call SourcePos Name [Expr]
   | Function SourcePos Name [Expr] Expr
   | Extern SourcePos Name [Expr]
+  | If SourcePos Expr Expr Expr
   deriving (Eq, Ord, Show)
 
 data Op
@@ -29,3 +30,4 @@ getPos (Var pos _) = pos
 getPos (Call pos _ _) = pos
 getPos (Function pos _ _ _) = pos
 getPos (Extern pos _ _) = pos
+getPos (If pos _ _ _) = pos
