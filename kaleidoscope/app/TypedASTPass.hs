@@ -33,6 +33,8 @@ data FuncState = FuncState
   }
   deriving (Show)
 
+type CompilerM = State CompilerState
+
 runTypedASTPass :: Untyped.CompilationUnit -> CompilerResult
 runTypedASTPass untypedExprs =
   -- let _ = map analyzeTopLevelExpr untypedExprs in
@@ -43,11 +45,11 @@ runTypedASTPass untypedExprs =
           errors = errors result
         }
 
-compileUnit :: [Untyped.Expr] -> State CompilerState ()
+compileUnit :: [Untyped.Expr] -> CompilerM ()
 compileUnit untypedExprs = do
   mapM_ compileTopLevelExpr untypedExprs
 
-compileTopLevelExpr :: Untyped.Expr -> State CompilerState ()
+compileTopLevelExpr :: Untyped.Expr -> CompilerM ()
 compileTopLevelExpr (Untyped.Function pos name params body) = do
   params <- mapM compileParam params
   let sig = FuncSignature {params = Map.fromList params, returnType = FloatType}
@@ -75,20 +77,20 @@ compileTopLevelExpr expr = do
   let pos = Untyped.getPos expr
   emitError pos "Not a function or extern."
 
-compileParam :: Untyped.Expr -> State CompilerState (String, Type)
+compileParam :: Untyped.Expr -> CompilerM (String, Type)
 compileParam (Untyped.Var _ name) = return (name, FloatType)
 compileParam expr = do
   let pos = Untyped.getPos expr
   emitError pos "Not a var."
   return ("?", UnknownType)
 
-compileFuncBody :: Untyped.Expr -> State CompilerState ()
+compileFuncBody :: Untyped.Expr -> CompilerM ()
 compileFuncBody body = do
   instr <- compileExpr body
   let pos = Untyped.getPos body
   emitInstr pos instr
 
-compileExpr :: Untyped.Expr -> State CompilerState Instr
+compileExpr :: Untyped.Expr -> CompilerM Instr
 compileExpr (Untyped.Float pos value) = do
   return $ Float value
 compileExpr (Untyped.BinOp pos op left right) = do
@@ -116,7 +118,6 @@ compileExpr (Untyped.Call pos funcName args) = do
       return $ Call {target, args = typedArgs}
 compileExpr (Untyped.If pos cond then_ else_) = do
   cond <- compileExpr cond
-  let x = unsafePerformIO $ putStrLn "PLEASE"
   -- TODO (thosakwe): If we ever return types besides float, then we need
   -- to figure out the return type
   -- TODO (thosakwe): Add a unique-name fetcher
@@ -128,22 +129,15 @@ compileExpr (Untyped.If pos cond then_ else_) = do
   -- To compile the logic for if and else, we need to create a new FuncState
   -- for each.
   thenBlockState <- gets $ changeBlock thenBlockName
-  elseBlockState <- gets $ changeBlock elseBlockName
   -- Preserve the current basic block name, so we can return to it after
   -- compiling both branches.
   oldFuncState <- gets funcState
-  -- let (_, thenBlockState) = runState (compileFuncBody then_) thenBlockState
-  -- let (_, elseBlockState) = runState (compileFuncBody else_) elseBlockState
-  -- put thenBlockState
-  -- compileFuncBody then_
-  -- put elseBlockState
-  -- compileFuncBody else_
-  -- Restore the previous funcState.
-  modify $ \state -> state {funcState = oldFuncState}
-  -- let thenBlockName = show then_
-  -- let elseBlockName = show else_
-  -- let thenBlockName = show thenBlockState
-  -- let elseBlockName = show elseBlockState
+  let compileBranches = runState $ do
+        compileFuncBody then_
+        modify $ changeBlock elseBlockName
+        compileFuncBody else_
+  let (_, finalState) = compileBranches thenBlockState
+  put finalState {funcState = oldFuncState}
   return $ JumpIfTrue FloatType cond thenBlockName elseBlockName
 compileExpr expr = do
   let msg = "Unsupported expr within function: " ++ show expr
@@ -163,14 +157,14 @@ emptyCompilerResult =
       compilationUnit = CompilationUnit {defns = Map.empty}
     }
 
-emitDefn :: String -> Defn -> State CompilerState ()
+emitDefn :: String -> Defn -> CompilerM ()
 emitDefn name defn = do
   modifyCompilationUnit $ \unit ->
     let CompilationUnit {defns = oldDefns} = unit
      in unit {defns = Map.insert name defn oldDefns}
 
 -- | Emit a new instruction in the current basic block.
-emitInstr :: SourcePos -> Instr -> State CompilerState ()
+emitInstr :: SourcePos -> Instr -> CompilerM ()
 emitInstr pos instr = do
   FuncState {currentBlockName, currentFuncName} <- gets funcState
   modifyCurrentFunction $ \func -> do
@@ -186,24 +180,24 @@ emitInstr pos instr = do
         func {blocks = newBlocks}
 
 -- | Create a new block in the current function.
-emitNewBlock :: String -> State CompilerState ()
+emitNewBlock :: String -> CompilerM ()
 emitNewBlock name = do
   modifyCurrentFunction $ \func ->
     let newBlock = BasicBlock {name, instrs = []}
         newBlocks = Map.insert name newBlock (blocks func)
      in func {blocks = newBlocks}
 
-emitError :: SourcePos -> String -> State CompilerState ()
+emitError :: SourcePos -> String -> CompilerM ()
 emitError pos msg = do
   let err = KaleidoError pos msg
   modifyResult $ \result -> result {errors = errors result ++ [err]}
 
-lookupCurrentFunc :: State CompilerState (Maybe Func)
+lookupCurrentFunc :: CompilerM (Maybe Func)
 lookupCurrentFunc = do
   FuncState {currentBlockName, currentFuncName} <- gets funcState
   lookupFunc currentFuncName
 
-lookupFunc :: String -> State CompilerState (Maybe Func)
+lookupFunc :: String -> CompilerM (Maybe Func)
 lookupFunc name = do
   unit <- getCompilationUnit
   let mFunc = Map.lookup name (defns unit)
@@ -211,7 +205,7 @@ lookupFunc name = do
     Just (FuncDefn func) -> return $ Just func
     _ -> return Nothing
 
-lookupParam :: String -> State CompilerState (Maybe Type)
+lookupParam :: String -> CompilerM (Maybe Type)
 lookupParam name = do
   mFunc <- lookupCurrentFunc
   case mFunc of
@@ -220,22 +214,22 @@ lookupParam name = do
       let FuncSignature {returnType, params} = sig func
       return $ Map.lookup name params
 
-getResult :: State CompilerState CompilerResult
+getResult :: CompilerM CompilerResult
 getResult = gets result
 
-getCompilationUnit :: State CompilerState CompilationUnit
+getCompilationUnit :: CompilerM CompilationUnit
 getCompilationUnit = gets (compilationUnit . result)
 
-modifyResult :: (CompilerResult -> CompilerResult) -> State CompilerState ()
+modifyResult :: (CompilerResult -> CompilerResult) -> CompilerM ()
 modifyResult f = do
   newResult <- gets (f . result)
   modify $ \state -> state {result = newResult}
 
-modifyCompilationUnit :: (CompilationUnit -> CompilationUnit) -> State CompilerState ()
+modifyCompilationUnit :: (CompilationUnit -> CompilationUnit) -> CompilerM ()
 modifyCompilationUnit f =
   modifyResult $ \result -> result {compilationUnit = f (compilationUnit result)}
 
-modifyCurrentFunction :: (Func -> Func) -> State CompilerState ()
+modifyCurrentFunction :: (Func -> Func) -> CompilerM ()
 modifyCurrentFunction f = do
   mFunc <- lookupCurrentFunc
   case mFunc of
