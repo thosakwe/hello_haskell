@@ -230,6 +230,23 @@ modifyCurrentFunction f = do
       let newFunctionsMap = Map.insert currentFunctionName newFunc functionsMap
       modify $ \state -> state {functionsMap = newFunctionsMap}
 
+-- | Helper for modifying the current block, if any exists.
+modifyCurrentBlock ::
+  ([Wasm.Instruction Natural] -> [Wasm.Instruction Natural]) -> WASMPassM ()
+modifyCurrentBlock f = do
+  WASMPassState {currentBlockName, currentFunctionName, functionBlocks} <- get
+  case Map.lookup currentFunctionName functionBlocks of
+    Nothing -> return ()
+    Just existingBlockMap -> do
+      case Map.lookup currentBlockName existingBlockMap of
+        Nothing -> return ()
+        Just instrs -> do
+          -- Now that we've found the correct block/instruction list, perform
+          -- the transformation.
+          let newBlockMap = Map.insert currentBlockName (f instrs) existingBlockMap
+          let newFuncBlockMap = Map.insert currentFunctionName newBlockMap functionBlocks
+          modify $ \state -> state {functionBlocks = newFuncBlockMap}
+
 switchToFunction :: String -> WASMPassM ()
 switchToFunction funcName =
   modify $ \state -> state {currentFunctionName = funcName}
