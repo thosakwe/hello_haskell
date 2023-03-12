@@ -8,6 +8,8 @@ import Control.Arrow (ArrowChoice (left))
 import Control.Monad.State
 import Control.Monad.Trans.Maybe
 import qualified Data.Map as Map
+import Debug.Trace (trace)
+import GHC.IO (unsafePerformIO)
 import KaleidoError
 import qualified Syntax as Untyped
 import Text.Parsec (SourcePos)
@@ -114,6 +116,7 @@ compileExpr (Untyped.Call pos funcName args) = do
       return $ Call {target, args = typedArgs}
 compileExpr (Untyped.If pos cond then_ else_) = do
   cond <- compileExpr cond
+  let x = unsafePerformIO $ putStrLn "PLEASE"
   -- TODO (thosakwe): If we ever return types besides float, then we need
   -- to figure out the return type
   -- TODO (thosakwe): Add a unique-name fetcher
@@ -129,12 +132,18 @@ compileExpr (Untyped.If pos cond then_ else_) = do
   -- Preserve the current basic block name, so we can return to it after
   -- compiling both branches.
   oldFuncState <- gets funcState
-  put thenBlockState
-  compileFuncBody then_
-  put elseBlockState
-  compileFuncBody else_
+  -- let (_, thenBlockState) = runState (compileFuncBody then_) thenBlockState
+  -- let (_, elseBlockState) = runState (compileFuncBody else_) elseBlockState
+  -- put thenBlockState
+  -- compileFuncBody then_
+  -- put elseBlockState
+  -- compileFuncBody else_
   -- Restore the previous funcState.
   modify $ \state -> state {funcState = oldFuncState}
+  -- let thenBlockName = show then_
+  -- let elseBlockName = show else_
+  -- let thenBlockName = show thenBlockState
+  -- let elseBlockName = show elseBlockState
   return $ JumpIfTrue FloatType cond thenBlockName elseBlockName
 compileExpr expr = do
   let msg = "Unsupported expr within function: " ++ show expr

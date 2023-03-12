@@ -5,6 +5,8 @@ import Parser
 import System.Console.Haskeline
 import System.Environment (getArgs)
 import TypedASTPass
+import TypedAST (ppCompilationUnit)
+import Text.PrettyPrint
 
 main :: IO ()
 main = do
@@ -43,7 +45,8 @@ process fname line = do
       case errors result of
         [] -> do
           putStrLn "Typed compilation unit:"
-          print $ compilationUnit result
+          -- print $ compilationUnit result
+          putStrLn $ render $ ppCompilationUnit $ compilationUnit result
         errors -> do
           putStrLn $ "Total errors: " ++ show (length errors)
           mapM_ print errors

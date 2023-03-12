@@ -1,10 +1,11 @@
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
 module TypedAST where
 
 import qualified Data.Map as Map
-import Syntax (CompilationUnit)
 import qualified Syntax as Untyped
+import Text.PrettyPrint
 
 type Name = String
 
@@ -25,8 +26,8 @@ data Instr
   | GetParam String Type
   | GetFunc String Type
   | Call {target :: Instr, args :: [Instr]}
-  -- | JumpIfTrue (returnType, cond, blockNameIfTrue, blockNameIfFalse)
-  | JumpIfTrue Type Instr String String
+  | -- | JumpIfTrue (returnType, cond, blockNameIfTrue, blockNameIfFalse)
+    JumpIfTrue Type Instr String String
   | UnknownInstr
   deriving (Show)
 
@@ -55,3 +56,62 @@ data Defn
 
 newtype CompilationUnit = CompilationUnit {defns :: Map.Map String Defn}
   deriving (Show)
+
+ppCompilationUnit :: CompilationUnit -> Doc
+ppCompilationUnit (CompilationUnit {defns}) =
+  vcat (map (nest 4 . ppDefn) (Map.toList defns))
+
+ppDefn :: (String, Defn) -> Doc
+ppDefn (_, FuncDefn (Func {name, sig, locals, blocks})) =
+  text "function" <+> text name <+> ppFuncSignature sig <+> vcat (map ppBasicBlock (Map.toList blocks))
+ppDefn (_, ExternDefn name sig) =
+  text "extern" <+> text name <+> ppFuncSignature sig
+
+ppFuncSignature :: FuncSignature -> Doc
+ppFuncSignature (FuncSignature {returnType, params}) =
+  text "(" <+> vcat (map ppParam (Map.toList params)) <+> text ")"
+
+ppParam :: (String, Type) -> Doc
+ppParam (name, type_) =
+  text name <+> text ":" <+> ppType type_
+
+ppType :: Type -> Doc
+ppType FloatType = text "float"
+ppType (FuncType sig) = text "fn" <+> ppFuncSignature sig
+ppType UnknownType = text "<unknown>"
+
+ppBasicBlock :: (String, BasicBlock) -> Doc
+ppBasicBlock (_, BasicBlock {name, instrs}) =
+  let body = nest 4 (vcat (map ppInstr instrs))
+   in text "basic block " <+> text name <+> text "{" <+> body <+> text "}"
+
+ppInstr :: Instr -> Doc
+ppInstr (Float value) = double value
+ppInstr (BinOp op left right) =
+  text "BinOp(op="
+    <+> ppOp op
+    <+> text ", left="
+    <+> ppInstr left
+    <+> text ", right="
+    <+> ppInstr left
+ppInstr (GetParam name _) = text "GetParam" <+> text name
+ppInstr (GetFunc name _) = text "GetFunc" <+> text name
+ppInstr (Call {target, args}) =
+  text "Call (" <+> vcat (map ppInstr args) <+> text ")"
+ppInstr (JumpIfTrue _ cond then_ else_) =
+  text "JumpIfTrue (cond="
+    <+> ppInstr cond
+    <+> text ", then="
+    <+> text then_
+    <+> text ", else="
+    <+> text else_
+    <+> text ")"
+ppInstr UnknownInstr = text "<unknown instruction>"
+
+ppOp :: Untyped.Op -> Doc
+ppOp Untyped.Plus = text "+"
+ppOp Untyped.Minus = text "-"
+ppOp Untyped.Times = text "*"
+ppOp Untyped.Divide = text "/"
+ppOp Untyped.LessThan = text "<"
+ppOp Untyped.GreaterThan = text ">"

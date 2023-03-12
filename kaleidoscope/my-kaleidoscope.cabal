@@ -44,6 +44,7 @@ executable my-kaleidoscope
         -- , llvm-hs-pure
         , mtl
         , parsec
+        , pretty
         , text
         , transformers
         , wasm
